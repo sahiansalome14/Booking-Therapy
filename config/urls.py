@@ -19,6 +19,7 @@ from django.urls import path
 from bookings.views import CrearReservaView
 
 urlpatterns = [
-    path("reservar/", CrearReservaView.as_view()),
+    path('admin/', admin.site.urls),
+    path('reservar/', CrearReservaView.as_view(), name='crear_reserva'),
 ]
 
