@@ -16,7 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from bookings.views import CrearReservaView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("reservar/", CrearReservaView.as_view()),
 ]
+
