@@ -7,20 +7,29 @@ Frontend desarrollado con **React + Vite**, usando **Bun** como gestor de paquet
 
 ## 🚀 Requisitos
 
-- Bun instalado
-
-Instalar Bun (si no lo tienes):
-
+## Opción A: Bun (Recomendado)
+Linux/macOS: 
 ```bash
 curl -fsSL https://bun.sh/install | bash
 ```
 
-Verificar instalación:
-
+Windows (PowerShell): 
 ```bash
+powershell -c "irm bun.sh/install.ps1 | iex"
+```
+
+Verificar:
+ ```bash
 bun --version
 ```
 
+## Opción B: npm (Node.js)
+
+Instalador: Descarga la versión LTS desde [Node.js](https://nodejs.org/es)
+
+macOS (Homebrew): brew install node
+
+Verificar: node -v y npm -v
 ---
 
 ## ⚙️ Instalación
@@ -33,15 +42,31 @@ cd frontend
 
 Instalar dependencias:
 
+## Opción A
+
 ```bash
 bun install
 ```
+
+## Opción B
+```bash
+npm install
+```
+
 ---
 
 ## ▶️ Ejecutar entorno de desarrollo
 
+## Opción A
+
 ```bash
-bun run dev
+bun dev
+```
+
+## Opción B
+
+```bash
+npm run dev
 ```
 
 Servidor disponible en:
