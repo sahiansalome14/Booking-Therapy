@@ -1,9 +1,9 @@
 # ==========================
-# OS FILES
+# ENV VARIABLES
 # ==========================
-.DS_Store
-Thumbs.db
-desktop.ini
+.env
+.env.*
+!.env.example
 
 # ==========================
 # PYTHON
@@ -13,13 +13,25 @@ __pycache__/
 *$py.class
 
 # ==========================
-# ANACONDA / CONDA
+# VIRTUAL ENVIRONMENTS
 # ==========================
+.venv/
+venv/
+env/
+ENV/
 .anaconda/
 conda-meta/
 
 # ==========================
-# VSCODE / IDE
+# DJANGO
+# ==========================
+db.sqlite3
+*.sqlite3
+media/
+staticfiles/
+
+# ==========================
+# IDE / EDITORS
 # ==========================
 .vscode/
 .idea/
@@ -27,16 +39,12 @@ conda-meta/
 *.swo
 
 # ==========================
-# LOGS
+# LOG FILES
 # ==========================
 *.log
 
 # ==========================
-# ENVIRONMENTS (LOCAL)
+# OS FILES
 # ==========================
-.venv/
-venv/
-env/
-ENV/
-
-node_modules/
+.DS_Store
+Thumbs.db
