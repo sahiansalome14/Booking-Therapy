@@ -39,18 +39,20 @@ export default function Landing() {
               <span className="font-semibold text-blue-600"> Agenda, paga y gestiona</span> todo en un solo lugar.
             </p>
             
-            <div className="flex gap-4 justify-center flex-wrap">
-              <Link to="/search">
-                <Button variant="gradient" size="lg" className="px-10 shadow-2xl">
-                  Reserva Sesión
-                </Button>
-              </Link>
-              <Link to="/therapist/login">
-                <Button variant="outline" size="lg" className="px-10">
-                  Soy Terapeuta
-                </Button>
-              </Link>
-            </div>
+           
+          <div className="relative z-20 flex gap-4 justify-center flex-wrap">
+            <Link to="/search" className="cursor-pointer">
+              <Button variant="gradient" size="lg" className="px-10 shadow-2xl">
+                Reserva Sesión
+              </Button>
+            </Link>
+            <Link to="/therapist/login" className="cursor-pointer">
+              <Button variant="outline" size="lg" className="px-10">
+                Soy Terapeuta
+              </Button>
+            </Link>
+          </div>
+            
           </div>
         </div>
 
