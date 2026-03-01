@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router';
+import { useParams, Link } from 'react-router-dom';
 import { Star, Award, Clock, MapPin, Calendar as CalendarIcon } from 'lucide-react';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';

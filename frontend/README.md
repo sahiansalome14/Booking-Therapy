@@ -72,3 +72,38 @@ npm run dev
 Servidor disponible en:
 
 http://localhost:5173
+
+---
+
+## 🔐 Autenticación con Supabase
+
+La página de login se implementa usando Supabase Auth UI para manejar
+registro, inicio de sesión y proveedores sociales (Google, GitHub, etc.).
+
+ Copia `.env.example` a `.env` y define:
+   ```env
+   VITE_SUPABASE_URL=https://<tu-proyecto>.supabase.co
+   VITE_SUPABASE_ANON_KEY=<tu-anon-key>
+   ```
+
+⚠ Importante: Las variables deben comenzar con VITE_ para que Vite las exponga al frontend.
+
+
+## Estructura
+
+```bash
+frontend/
+│── src/
+│   ├── components/
+│   ├── pages/
+│   ├── hooks/
+│   ├── services/
+│   ├── context/
+│   └── router/
+│── public/
+│── vite.config.ts
+│── package.json
+│── .env
+│── .env.example
+│── README.md
+```

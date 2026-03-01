@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { Calendar, Heart, Shield, TrendingUp, CheckCircle2, Sparkles, Zap, Activity, ArrowRight } from 'lucide-react';
 

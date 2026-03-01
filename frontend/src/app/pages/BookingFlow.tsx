@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useSearchParams, Link } from 'react-router';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { Check, CreditCard, Calendar, User, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '../components/Button';
 import { mockTherapists } from '../data/mockData';

@@ -1,20 +1,23 @@
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Calendar, DollarSign, Users, TrendingUp, Clock } from 'lucide-react';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { Badge } from '../components/Badge';
+import { useAuth } from '../context/AuthContext';
 import { mockSessions } from '../data/mockData';
 
 export default function TherapistDashboard() {
+  const { user } = useAuth();
+
   // Mock data for therapist (Dr. Carlos Méndez - ID 1)
   const therapistSessions = mockSessions.filter(s => s.therapistId === '1');
-  
-  const todaySessions = therapistSessions.filter(s => 
+
+  const todaySessions = therapistSessions.filter(s =>
     s.date === '2026-02-21' && (s.status === 'confirmed' || s.status === 'pending')
   );
 
-  const upcomingSessions = therapistSessions.filter(s => 
+  const upcomingSessions = therapistSessions.filter(s =>
     new Date(s.date) >= new Date('2026-02-21') && (s.status === 'confirmed' || s.status === 'pending')
   ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
@@ -40,7 +43,9 @@ export default function TherapistDashboard() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Dashboard del Terapeuta</h1>
-          <p className="text-muted-foreground">Bienvenido de vuelta, Dr. Carlos Méndez</p>
+          <p className="text-muted-foreground">
+            Bienvenido de vuelta, {user?.name || user?.email || 'Terapeuta'}
+          </p>
         </div>
 
         {/* Stats Cards */}
@@ -145,7 +150,7 @@ export default function TherapistDashboard() {
           {/* Today's Sessions */}
           <div className="lg:col-span-2">
             <h2 className="text-xl font-semibold mb-4">Sesiones de Hoy</h2>
-            
+
             <div className="space-y-4">
               {todaySessions.length === 0 ? (
                 <Card>
@@ -166,7 +171,7 @@ export default function TherapistDashboard() {
                         {getStatusBadge(session.status).label}
                       </Badge>
                     </div>
-                    
+
                     <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
                       <div className="flex items-center gap-1">
                         <Clock className="w-4 h-4" />
@@ -197,7 +202,7 @@ export default function TherapistDashboard() {
           {/* Upcoming Sessions */}
           <div>
             <h2 className="text-xl font-semibold mb-4">Próximas Sesiones</h2>
-            
+
             <div className="space-y-3">
               {upcomingSessions.slice(0, 5).map(session => (
                 <Card key={session.id} className="p-4">
@@ -212,9 +217,9 @@ export default function TherapistDashboard() {
                   </div>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     <span>
-                      {new Date(session.date).toLocaleDateString('es-ES', { 
-                        month: 'short', 
-                        day: 'numeric' 
+                      {new Date(session.date).toLocaleDateString('es-ES', {
+                        month: 'short',
+                        day: 'numeric'
                       })}
                     </span>
                     <span>•</span>
