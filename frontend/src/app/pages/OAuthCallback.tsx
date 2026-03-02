@@ -2,51 +2,32 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 
 export default function OAuthCallback() {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
 
+  const { user, isInitializing } = useAuth();
+
   useEffect(() => {
-    // Supabase client uses the URL hash to automatically generate the session on load
-    // so we can get it from the client
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (error || !session) {
-        setError(error?.message || 'No token found or invalid session');
-        return;
+    // Esperar a que AuthContext termine la verificación
+    if (!isInitializing) {
+      if (user) {
+        if (!user.is_profile_complete) {
+          console.log('🚀 OAuthCallback: Perfil incompleto, dirigiéndose a /seleccionar-rol');
+          navigate('/seleccionar-rol?from=oauth', { replace: true });
+        } else {
+          const dest = user.role === 'therapist' ? '/therapist/dashboard' : '/client/dashboard';
+          console.log(`🚀 OAuthCallback: Perfil completo, dirigiéndose a ${dest}`);
+          navigate(dest, { replace: true });
+        }
+      } else {
+        console.log('🚀 OAuthCallback: No user found after verification, going to /login');
+        navigate('/login', { replace: true });
       }
-
-      const accessToken = session.access_token;
-
-      // verify and fetch profile
-      axios
-        .get('/api/auth/verify/', {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        })
-        .then((resp) => {
-          const user = resp.data;
-          // do not force a default role; keep it undefined if backend returns none
-          if (user.role) {
-            const dest = user.role === 'therapist' ? '/therapist/dashboard' : '/client/dashboard';
-            navigate(dest);
-          } else {
-            // tell the picker we came from OAuth so it can show explanatory text
-            const params = new URLSearchParams();
-            params.set('from', 'oauth');
-            navigate('/select-role?' + params.toString());
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-          // If the profile verification fails after login, we shouldn't necessarily crash
-          // the session itself is valid but they might not have a profile, we let AuthContext 
-          // handle role selection and redirect it to home on error.
-          navigate('/');
-        });
-    });
-  }, [navigate]);
+    }
+  }, [user, isInitializing, navigate]);
 
   if (error) {
     return (

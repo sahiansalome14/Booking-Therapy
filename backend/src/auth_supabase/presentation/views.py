@@ -81,16 +81,10 @@ class ProviderRedirectView(APIView):
         profile = service.profile_repo.get_by_external_auth_id(external_id)
 
         if not profile:
-            from ..application.factories import ProfileFactory
-            new_profile = ProfileFactory.create_entity(
-                email=user_data["email"],
-                role="client",
-                external_auth_id=external_id
-            )
-            service.profile_repo.save_profile(new_profile)
-            user_data["role"] = "client"
-            user_data["internal_id"] = str(new_profile.id)
+            user_data["is_profile_complete"] = False
+            user_data["role"] = None
         else:
+            user_data["is_profile_complete"] = True
             user_data["role"] = profile.role
             user_data["internal_id"] = str(profile.id)
 
@@ -104,7 +98,7 @@ class SetRoleView(APIView):
     def post(self, request):
         print("ENTRÓ A LA VISTA")
 
-        external_id = request.user.id # Supabase ID from request.user (via auth backend)
+        external_id = request.user.sub # Supabase ID from request.user (via auth backend)
         email = request.user.email
 
         serializer = SetRoleSerializer(data=request.data)

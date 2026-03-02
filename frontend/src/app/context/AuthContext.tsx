@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import * as authService from '../../services/auth';
 import { supabase } from '../../lib/supabase';
 import axios from 'axios';
@@ -9,6 +9,7 @@ export interface User {
   email: string;
   name?: string;
   role?: 'client' | 'therapist' | null;
+  is_profile_complete?: boolean;
 }
 
 export interface AuthContextType {
@@ -30,13 +31,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const isVerifying = React.useRef(false);
+  const lastVerifiedSession = React.useRef<string | null>(null);
 
   const verifyUser = useCallback(async (session: any) => {
     if (!session) {
       setUser(null);
       setIsInitializing(false);
+      lastVerifiedSession.current = null;
       return;
     }
+
+    // Deduplicate calls for the same session
+    if (lastVerifiedSession.current === session.access_token) {
+      console.log('⏩ Session already verified, skipping');
+      setIsInitializing(false);
+      return;
+    }
+
+    if (isVerifying.current) {
+      console.log('⏳ Already verifying, waiting...');
+      return;
+    }
+
+    isVerifying.current = true;
 
     try {
       console.log('🔄 Verifying user with backend...');
@@ -54,12 +72,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         external_auth_id: session.user.id,
         email: session.user.email,
         name: metadataName || dbUser.name || session.user.email,
-        role: dbUser.role || null
+        role: dbUser.role || null,
+        is_profile_complete: dbUser.is_profile_complete ?? false,
       };
 
       console.log('👤 Merged user state:', mergedUser);
       setUser(mergedUser);
       localStorage.setItem('user', JSON.stringify(mergedUser));
+      lastVerifiedSession.current = session.access_token;
 
       if (mergedUser.role) {
         localStorage.setItem('role', mergedUser.role);
@@ -70,6 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('❌ Verify failed:', err);
       setUser(null);
     } finally {
+      isVerifying.current = false;
       setIsInitializing(false);
     }
   }, []);
@@ -131,11 +152,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           runVerify(session);
         }
       } else if (event === 'SIGNED_OUT') {
+        // Immediate local state cleanup
+        setUser(null);
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
         localStorage.removeItem('user');
         localStorage.removeItem('role');
-        setUser(null);
+
+        // Use replace to prevent back-button flickering
         window.location.replace('/');
       }
     });
@@ -172,9 +196,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signout = () => {
+  const signout = async () => {
+    // Clear state before external calls or redirects
+    setUser(null);
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('role');
+
     authService.signout();
-    supabase.auth.signOut();
+    await supabase.auth.signOut();
   };
 
   const value: AuthContextType = {

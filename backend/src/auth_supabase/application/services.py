@@ -22,7 +22,7 @@ class AuthService:
         user_info = data.get("user", {})
         external_id = user_info.get("id")
 
-        # Use factory to create domain entity
+        # Utilice la fábrica para crear una entidad de dominio
         profile = ProfileFactory.create_entity(
             email=email,
             role=role,
@@ -31,8 +31,9 @@ class AuthService:
 
         self._profile_repo.save_profile(profile)
 
-        # Include internal ID in the response
+        # Incluir ID interno y estado de finalización del perfil en la respuesta
         data.setdefault("user", {})["internal_id"] = str(profile.id)
+        data.setdefault("user", {})["is_profile_complete"] = True
 
         return data, resp.status_code
 
@@ -48,7 +49,10 @@ class AuthService:
         if profile:
             data.setdefault("user", {})["role"] = profile.role
             data.setdefault("user", {})["internal_id"] = str(profile.id)
-            data.setdefault("user", {})["name"] = f"Usuario {profile.role.capitalize()}" # In the future, this can be the real name from the Profile model
+            data.setdefault("user", {})["name"] = f"Usuario {profile.role.capitalize()}"
+            data.setdefault("user", {})["is_profile_complete"] = True
+        else:
+            data.setdefault("user", {})["is_profile_complete"] = False
 
         return data, resp.status_code
 
@@ -67,5 +71,10 @@ class AuthService:
                 user_info["role"] = profile.role
                 user_info["internal_id"] = str(profile.id)
                 user_info["name"] = f"Usuario {profile.role.capitalize()}"
+                user_info["is_profile_complete"] = True
+            else:
+                user_info["is_profile_complete"] = False
+        else:
+            user_info["is_profile_complete"] = False
 
         return user_info, 200

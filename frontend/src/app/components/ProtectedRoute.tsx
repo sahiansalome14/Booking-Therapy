@@ -17,8 +17,14 @@ export function ProtectedRoute({
     const location = useLocation();
 
     if (isInitializing) {
-        console.log('🛡️ ProtectedRoute: isInitializing=true, returning null');
-        return null;
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-background">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="h-10 w-10 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+                    <p className="text-muted-foreground font-medium">Cargando...</p>
+                </div>
+            </div>
+        );
     }
 
     console.log('🛡️ ProtectedRoute Check:', {
@@ -28,41 +34,40 @@ export function ProtectedRoute({
         requireRole
     });
 
-    // 2. Unauthenticated state
+    // No autenticado
     if (requireAuth && !user) {
         console.log('🛡️ ProtectedRoute: No user, redirecting to /');
         return <Navigate to="/" replace />;
     }
 
-    // 3. Authenticated state but checking roles
+    // Estado autenticado pero verificando la integridad del perfil
     if (requireAuth && user) {
-        // Si no tiene rol y requiere rol, ir a seleccionar rol
-        if (requireRole && !user.role) {
-            if (location.pathname !== '/select-role') {
-                console.log('🛡️ ProtectedRoute: No role detected, redirecting to /select-role');
-                return <Navigate to="/select-role" replace />;
+        // Si el perfil no está completo, forzar redirección a seleccionar-rol
+        if (!user.is_profile_complete) {
+            if (location.pathname !== '/seleccionar-rol' && location.pathname !== '/select-role') {
+                console.log('🛡️ ProtectedRoute: Profile incomplete, redirecting to /seleccionar-rol');
+                return <Navigate to="/seleccionar-rol" replace />;
             }
         }
-
-        // Si YA tiene rol y está intentando acceder a /select-role, enviarlo a su dashboard
-        if (user.role && location.pathname === '/select-role') {
+        // Si el perfil ya está completo e intenta entrar a selección de rol
+        else if (location.pathname === '/seleccionar-rol' || location.pathname === '/select-role') {
             const dest = user.role === 'therapist' ? '/therapist/dashboard' : '/client/dashboard';
-            console.log(`🛡️ ProtectedRoute: User has role ${user.role}, redirecting from /select-role to ${dest}`);
+            console.log(`🛡️ ProtectedRoute: Profile complete, redirecting from role selection to ${dest}`);
             return <Navigate to={dest} replace />;
         }
     }
 
-    // Public routes for authenticated users (like Login Page)
-    if (!requireAuth && user && user.role) {
-        // Don't let logged in users access login page
+    // Rutas públicas para usuarios autenticados 
+    if (!requireAuth && user && user.is_profile_complete) {
+        // No permitir que los usuarios autenticados accedan a la página de inicio de sesión
         if (location.pathname === '/login') {
             const dest = user.role === 'therapist' ? '/therapist/dashboard' : '/client/dashboard';
             console.log(`🛡️ ProtectedRoute: Authenticated user on /login, redirecting to ${dest}`);
             return <Navigate to={dest} replace />;
         }
-    } else if (!requireAuth && user && !user.role && location.pathname === '/login') {
-        console.log('🛡️ ProtectedRoute: Authenticated user (no role) on /login, redirecting to /select-role');
-        return <Navigate to="/select-role" replace />;
+    } else if (!requireAuth && user && !user.is_profile_complete && location.pathname === '/login') {
+        console.log('🛡️ ProtectedRoute: Authenticated user (no profile) on /login, redirecting to /seleccionar-rol');
+        return <Navigate to="/seleccionar-rol" replace />;
     }
 
     console.log('🛡️ ProtectedRoute: Access granted');

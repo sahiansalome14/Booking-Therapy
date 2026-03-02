@@ -4,8 +4,9 @@ from ..application.auth_service_factory import AuthServiceFactory
 
 
 class SupabaseUser:
-    def __init__(self, email):
+    def __init__(self, email, sub):
         self.email = email
+        self.sub = sub
         self.is_active = True
 
     @property
@@ -38,5 +39,5 @@ class SupabaseAuthentication(BaseAuthentication):
 
         if "email" not in user_data:
             raise exceptions.AuthenticationFailed("Email no presente en token")
-
-        return (SupabaseUser(user_data["email"]), token)
+            
+        return (SupabaseUser(user_data["email"], user_data["id"]), token)

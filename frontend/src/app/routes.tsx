@@ -20,20 +20,21 @@ export const router = createBrowserRouter([
     Component: Layout,
     children: [
       { index: true, Component: Landing },
-      // allow public to search and see profiles
+      //Permitir al público buscar y ver perfiles
       { path: "search", Component: TherapistSearch },
       { path: "therapist-profile/:id", Component: TherapistProfile },
 
-      // protected routes
+      // rutas protegidas
       { path: "booking/:therapistId", element: <ProtectedRoute><BookingFlow /></ProtectedRoute> },
       { path: "client/dashboard", element: <ProtectedRoute><ClientDashboard /></ProtectedRoute> },
       { path: "therapist/dashboard", element: <ProtectedRoute><TherapistDashboard /></ProtectedRoute> },
       { path: "therapist/schedule", element: <ProtectedRoute><TherapistSchedule /></ProtectedRoute> },
       { path: "therapist/sessions", element: <ProtectedRoute><TherapistSessions /></ProtectedRoute> },
       { path: "select-role", element: <ProtectedRoute requireAuth={true} requireRole={false}><SelectRolePage /></ProtectedRoute> },
+      { path: "seleccionar-rol", element: <ProtectedRoute requireAuth={true} requireRole={false}><SelectRolePage /></ProtectedRoute> },
 
       // callbacks
-      { path: "oauth-callback", Component: OAuthCallback },
+      { path: "oauth-callback", element: <ProtectedRoute requireAuth={false} requireRole={false}><OAuthCallback /></ProtectedRoute> },
       { path: "*", Component: NotFound },
     ],
   },
@@ -41,7 +42,7 @@ export const router = createBrowserRouter([
     path: "login",
     element: <ProtectedRoute requireAuth={false}><AuthPage /></ProtectedRoute>,
   },
-  // redirect helpers so links from header keep working if they include role
+  // Redirigir a los helpers para que los enlaces del encabezado sigan funcionando si incluyen el rol
   {
     path: "therapist/login",
     element: <Navigate to="/login?role=therapist" replace />,

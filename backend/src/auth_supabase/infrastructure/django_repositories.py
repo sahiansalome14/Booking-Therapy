@@ -14,7 +14,6 @@ class DjangoProfileRepository(ProfileRepository):
     def get_by_email(self, email: str) -> Profile:
         model = ProfileModel.objects.filter(user__email=email).first()
         if not model:
-            # Fallback for username as email (legacy or special cases)
             model = ProfileModel.objects.filter(user__username=email).first()
         return ProfileMapper.to_domain(model) if model else None
 
