@@ -1,13 +1,18 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router';
-import { Sparkles, User, Zap } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Sparkles, User, LogOut } from 'lucide-react';
 import { Button } from './Button';
+import { useAuth } from '../context/AuthContext';
 
 export function Header() {
-  const location = useLocation();
-  const isTherapistDashboard = location.pathname.startsWith('/therapist');
-  const isClientDashboard = location.pathname.startsWith('/client');
-  
+  const navigate = useNavigate();
+  const { user, signout, isAuthenticated } = useAuth();
+
+  const handleLogout = () => {
+    signout();
+    navigate('/login');
+  };
+
   return (
     <header className="bg-white/80 backdrop-blur-lg border-b border-blue-100 sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto px-6 py-4">
@@ -21,75 +26,82 @@ export function Header() {
               Vis Vitalis
             </span>
           </Link>
-          
+
           <nav className="flex items-center gap-8">
-            {!isTherapistDashboard && !isClientDashboard && (
+            {!isAuthenticated ? (
               <>
-                <Link 
-                  to="/search" 
+                <Link
+                  to="/search"
                   className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium relative group"
                 >
                   Buscar Terapeutas
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
                 </Link>
-                <Link 
-                  to="/therapist/login" 
+                <Link
+                  to="/login?role=therapist"
                   className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium relative group"
                 >
                   Soy Terapeuta
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
                 </Link>
-                <Link to="/client/login">
+                <Link to="/login?role=client">
                   <Button variant="outline" size="sm">
                     Iniciar Sesión
                   </Button>
                 </Link>
               </>
-            )}
-            {isClientDashboard && (
+            ) : (
               <>
-                <Link 
-                  to="/search" 
-                  className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium"
-                >
-                  Buscar Terapeutas
-                </Link>
-                <Link 
-                  to="/client/dashboard" 
-                  className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium"
-                >
-                  Mi Dashboard
-                </Link>
-                <Button variant="ghost" size="sm">
-                  <User className="w-4 h-4 mr-2" />
-                  María González
-                </Button>
-              </>
-            )}
-            {isTherapistDashboard && (
-              <>
-                <Link 
-                  to="/therapist/dashboard" 
-                  className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium"
-                >
-                  Dashboard
-                </Link>
-                <Link 
-                  to="/therapist/schedule" 
-                  className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium"
-                >
-                  Agenda
-                </Link>
-                <Link 
-                  to="/therapist/sessions" 
-                  className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium"
-                >
-                  Sesiones
-                </Link>
-                <Button variant="ghost" size="sm">
-                  <User className="w-4 h-4 mr-2" />
-                  Dr. Carlos Méndez
-                </Button>
+                {user?.role === 'client' && (
+                  <>
+                    <Link
+                      to="/search"
+                      className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium"
+                    >
+                      Buscar Terapeutas
+                    </Link>
+                    <Link
+                      to="/client/dashboard"
+                      className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium"
+                    >
+                      Mi Dashboard
+                    </Link>
+                  </>
+                )}
+
+                {user?.role === 'therapist' && (
+                  <>
+                    <Link
+                      to="/therapist/dashboard"
+                      className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium"
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      to="/therapist/schedule"
+                      className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium"
+                    >
+                      Agenda
+                    </Link>
+                    <Link
+                      to="/therapist/sessions"
+                      className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium"
+                    >
+                      Sesiones
+                    </Link>
+                  </>
+                )}
+
+                <div className="flex items-center gap-4 border-l border-border pl-4 ml-2">
+                  <span className="text-sm font-medium flex items-center">
+                    <User className="w-4 h-4 mr-2" />
+                    {user?.name || user?.email}
+                  </span>
+                  <Button variant="ghost" size="sm" onClick={handleLogout} className="text-red-500 hover:text-red-600 hover:bg-red-50">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Salir
+                  </Button>
+                </div>
               </>
             )}
           </nav>

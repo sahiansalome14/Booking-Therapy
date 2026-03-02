@@ -1,17 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Calendar, Clock, DollarSign, User } from 'lucide-react';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { Badge } from '../components/Badge';
+import { useAuth } from '../context/AuthContext';
 import { mockSessions } from '../data/mockData';
 
 export default function ClientDashboard() {
-  const upcomingSessions = mockSessions.filter(s => 
+  const { user } = useAuth();
+
+  const upcomingSessions = mockSessions.filter(s =>
     s.status === 'confirmed' || s.status === 'pending'
   ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  const pastSessions = mockSessions.filter(s => 
+  const pastSessions = mockSessions.filter(s =>
     s.status === 'completed' || s.status === 'cancelled'
   ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -37,7 +40,9 @@ export default function ClientDashboard() {
           <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
             Mi Dashboard
           </h1>
-          <p className="text-muted-foreground text-lg">Bienvenida de vuelta, María</p>
+          <p className="text-muted-foreground text-lg">
+            Bienvenida de vuelta, {user?.name || user?.email || 'Cliente'}
+          </p>
         </div>
 
         {/* Stats Cards */}
@@ -132,14 +137,14 @@ export default function ClientDashboard() {
                         {getStatusBadge(session.status).label}
                       </Badge>
                     </div>
-                    
+
                     <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
                       <div className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
                         <span>
-                          {new Date(session.date).toLocaleDateString('es-ES', { 
-                            month: 'short', 
-                            day: 'numeric' 
+                          {new Date(session.date).toLocaleDateString('es-ES', {
+                            month: 'short',
+                            day: 'numeric'
                           })}
                         </span>
                       </div>
@@ -172,7 +177,7 @@ export default function ClientDashboard() {
           {/* History & Payments */}
           <div>
             <h2 className="text-xl font-semibold mb-4">Historial de Sesiones</h2>
-            
+
             <div className="space-y-4">
               {pastSessions.length === 0 ? (
                 <Card>
@@ -193,13 +198,13 @@ export default function ClientDashboard() {
                         {getStatusBadge(session.status).label}
                       </Badge>
                     </div>
-                    
+
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
                         <span>
-                          {new Date(session.date).toLocaleDateString('es-ES', { 
-                            month: 'short', 
+                          {new Date(session.date).toLocaleDateString('es-ES', {
+                            month: 'short',
                             day: 'numeric',
                             year: 'numeric'
                           })}
