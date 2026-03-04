@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'corsheaders',  
     'rest_framework', 
     'auth_supabase',
+    'agenda',
 ]
 
 MIDDLEWARE = [
