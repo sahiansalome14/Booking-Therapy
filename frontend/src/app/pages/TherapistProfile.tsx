@@ -1,17 +1,45 @@
-import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Star, Award, Clock, MapPin, Calendar as CalendarIcon } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
+import { Star, Award, Clock, MapPin, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { Badge } from '../components/Badge';
-import { mockTherapists, generateTimeSlots } from '../data/mockData';
+import { mockTherapists } from '../data/mockData';
+import { agendaService, Slot } from '../../services/agenda';
 
 export default function TherapistProfile() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const therapist = mockTherapists.find(t => t.id === id);
-  
-  const [selectedDate, setSelectedDate] = useState<string>('');
-  const [selectedTime, setSelectedTime] = useState<string>('');
+
+  const formatDateLocal = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const [selectedDate, setSelectedDate] = useState<string>(formatDateLocal(new Date()));
+  const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
+  const [slots, setSlots] = useState<Slot[]>([]);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+
+  const fetchSlots = useCallback(async () => {
+    if (!id) return;
+    setIsLoadingSlots(true);
+    try {
+      const data = await agendaService.getSlots(id, selectedDate);
+      setSlots(data);
+    } catch (error) {
+      console.error('Error fetching slots:', error);
+    } finally {
+      setIsLoadingSlots(false);
+    }
+  }, [id, selectedDate]);
+
+  useEffect(() => {
+    fetchSlots();
+  }, [fetchSlots]);
 
   if (!therapist) {
     return (
@@ -28,12 +56,12 @@ export default function TherapistProfile() {
 
   const generateDates = () => {
     const dates = [];
-    const today = new Date('2026-02-21');
+    const today = new Date();
     for (let i = 0; i < 7; i++) {
-      const date = new Date(today);
-      date.setDate(date.getDate() + i);
+      const date = new Date();
+      date.setDate(today.getDate() + i);
       dates.push({
-        full: date.toISOString().split('T')[0],
+        full: formatDateLocal(date),
         day: date.toLocaleDateString('es-ES', { weekday: 'short' }),
         date: date.getDate(),
         month: date.toLocaleDateString('es-ES', { month: 'short' })
@@ -43,25 +71,22 @@ export default function TherapistProfile() {
   };
 
   const dates = generateDates();
-  const timeSlots = selectedDate ? generateTimeSlots(therapist.id, selectedDate) : [];
 
   const handleBooking = () => {
-    if (selectedDate && selectedTime) {
-      // Navigate to booking flow
-      window.location.href = `/booking/${therapist.id}?date=${selectedDate}&time=${selectedTime}`;
+    if (selectedDate && selectedSlot) {
+      // Navigate to booking flow with date and time
+      window.location.href = `/booking/${therapist.id}?date=${selectedDate}&time=${selectedSlot.start}`;
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50/30 to-background py-8">
       <div className="container mx-auto px-6">
-        {/* Back Button */}
         <Link to="/search" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-6 font-medium transition-colors group">
           ← <span className="group-hover:-translate-x-1 transition-transform">Volver a búsqueda</span>
         </Link>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Column - Profile Info */}
           <div className="lg:col-span-1">
             <div className="bg-white border border-blue-100 rounded-2xl p-6 shadow-lg shadow-blue-500/5 sticky top-24">
               <div className="text-center mb-6">
@@ -77,7 +102,7 @@ export default function TherapistProfile() {
                 </div>
                 <h2 className="text-2xl font-bold mb-2">{therapist.name}</h2>
                 <p className="text-blue-600 font-medium mb-3">{therapist.specialty}</p>
-                
+
                 <div className="flex items-center justify-center gap-2 mb-4">
                   <div className="flex items-center gap-1 bg-gradient-to-r from-yellow-50 to-amber-50 px-3 py-1.5 rounded-full border border-yellow-200">
                     <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
@@ -124,7 +149,6 @@ export default function TherapistProfile() {
             </div>
           </div>
 
-          {/* Right Column - Calendar & Bio */}
           <div className="lg:col-span-2 space-y-6">
             {/* Bio */}
             <div className="bg-white border border-blue-100 rounded-2xl p-6 shadow-lg shadow-blue-500/5">
@@ -153,13 +177,12 @@ export default function TherapistProfile() {
                       key={date.full}
                       onClick={() => {
                         setSelectedDate(date.full);
-                        setSelectedTime('');
+                        setSelectedSlot(null);
                       }}
-                      className={`p-3 border-2 rounded-xl text-center transition-all duration-200 hover:scale-105 ${
-                        selectedDate === date.full
-                          ? 'border-blue-600 bg-gradient-to-br from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/30'
-                          : 'border-blue-100 hover:border-blue-300 hover:bg-blue-50'
-                      }`}
+                      className={`p-3 border-2 rounded-xl text-center transition-all duration-200 hover:scale-105 ${selectedDate === date.full
+                        ? 'border-blue-600 bg-gradient-to-br from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/30'
+                        : 'border-blue-100 hover:border-blue-300 hover:bg-blue-50'
+                        }`}
                     >
                       <div className="text-xs uppercase font-medium">{date.day}</div>
                       <div className="text-lg font-bold">{date.date}</div>
@@ -173,26 +196,32 @@ export default function TherapistProfile() {
               {selectedDate && (
                 <div>
                   <h4 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">Horarios disponibles</h4>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                    {timeSlots.map((slot) => (
-                      <button
-                        key={slot.id}
-                        onClick={() => slot.available && setSelectedTime(slot.time)}
-                        disabled={!slot.available}
-                        className={`p-3 border-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                          !slot.available
-                            ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-                            : selectedTime === slot.time
-                            ? 'border-blue-600 bg-gradient-to-br from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/30 scale-105'
-                            : 'border-blue-200 hover:border-blue-400 hover:bg-blue-50 hover:scale-105'
-                        }`}
-                      >
-                        {slot.time}
-                      </button>
-                    ))}
-                  </div>
-                  
-                  {timeSlots.filter(s => s.available).length === 0 && (
+                  {isLoadingSlots ? (
+                    <div className="flex justify-center py-8">
+                      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                      {slots.map((slot) => {
+                        const isSelected = selectedSlot?.start === slot.start;
+
+                        return (
+                          <button
+                            key={slot.start}
+                            onClick={() => setSelectedSlot(slot)}
+                            className={`p-3 border-2 rounded-xl text-sm font-semibold transition-all duration-200 ${isSelected
+                              ? 'border-blue-600 bg-gradient-to-br from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/30 scale-105'
+                              : 'border-blue-200 hover:border-blue-400 hover:bg-blue-50 hover:scale-105'
+                              }`}
+                          >
+                            {slot.start}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {!isLoadingSlots && slots.length === 0 && (
                     <p className="text-muted-foreground text-sm text-center py-4">
                       No hay horarios disponibles para esta fecha
                     </p>
@@ -207,17 +236,17 @@ export default function TherapistProfile() {
               )}
 
               {/* Booking Button */}
-              {selectedDate && selectedTime && (
+              {selectedDate && selectedSlot && (
                 <div className="mt-6 pt-6 border-t border-blue-100">
                   <div className="flex items-center justify-between mb-4 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
                     <div>
                       <p className="text-sm text-muted-foreground mb-1">Sesión seleccionada</p>
                       <p className="font-bold text-lg">
-                        {new Date(selectedDate).toLocaleDateString('es-ES', { 
-                          weekday: 'long', 
+                        {new Date(selectedDate + 'T12:00:00').toLocaleDateString('es-ES', {
+                          weekday: 'long',
                           day: 'numeric',
                           month: 'long'
-                        })} - {selectedTime}
+                        })} - {selectedSlot.start}
                       </p>
                     </div>
                     <div className="text-right">
@@ -227,11 +256,14 @@ export default function TherapistProfile() {
                       </p>
                     </div>
                   </div>
-                  <Link to={`/booking/${therapist.id}?date=${selectedDate}&time=${selectedTime}`}>
-                    <Button variant="gradient" size="lg" className="w-full shadow-2xl">
-                      Reservar Sesión
-                    </Button>
-                  </Link>
+                  <Button
+                    variant="gradient"
+                    size="lg"
+                    className="w-full shadow-2xl"
+                    onClick={handleBooking}
+                  >
+                    Reservar Sesión
+                  </Button>
                 </div>
               )}
             </div>

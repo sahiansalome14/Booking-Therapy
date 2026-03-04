@@ -20,4 +20,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('auth_supabase.urls')),
+    path('api/agenda/', include('agenda.urls')),
 ]

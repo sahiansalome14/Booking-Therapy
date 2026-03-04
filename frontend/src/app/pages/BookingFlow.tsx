@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
-import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { Check, CreditCard, Calendar, User, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { Check, CreditCard, Calendar, User, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { Button } from '../components/Button';
 import { mockTherapists } from '../data/mockData';
+import { agendaService } from '../../services/agenda';
 
 export default function BookingFlow() {
   const { therapistId } = useParams();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const date = searchParams.get('date') || '';
   const time = searchParams.get('time') || '';
-  
+
   const therapist = mockTherapists.find(t => t.id === therapistId);
-  
+
   const [currentStep, setCurrentStep] = useState(1);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [formData, setFormData] = useState({
     name: 'María González',
     email: 'maria.gonzalez@email.com',
@@ -55,21 +58,38 @@ export default function BookingFlow() {
         setBookingError('Por favor completa los datos de pago');
         return false;
       }
-      if (Math.random() < 0.2) {
-        setBookingError('Pago rechazado. Por favor verifica los datos de tu tarjeta.');
+      // Demo validation
+      if (formData.cardNumber.length < 16) {
+        setBookingError('Número de tarjeta inválido');
         return false;
       }
     }
     return true;
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (validateStep(currentStep)) {
       if (currentStep === 3) {
-        setBookingSuccess(true);
+        // ACTUAL RESERVATION CALL
+        setIsProcessing(true);
+        try {
+          if (!therapistId || !date || !time) throw new Error("Datos de reserva faltantes");
+          await agendaService.createAppointment({
+            therapist_id: therapistId,
+            target_date: date,
+            start_time: time
+          });
+          setBookingSuccess(true);
+          setCurrentStep(4);
+        } catch (error: any) {
+          setBookingError(error.response?.data?.detail || 'Error al procesar la reserva. Puede que el slot ya no esté disponible.');
+        } finally {
+          setIsProcessing(false);
+        }
+      } else {
+        setCurrentStep(currentStep + 1);
+        setBookingError('');
       }
-      setCurrentStep(currentStep + 1);
-      setBookingError('');
     }
   };
 
@@ -87,29 +107,26 @@ export default function BookingFlow() {
             {steps.map((step, index) => (
               <React.Fragment key={step.number}>
                 <div className="flex flex-col items-center relative z-10">
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-2 transition-all duration-300 ${
-                    currentStep > step.number
-                      ? 'bg-gradient-to-br from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/30'
-                      : currentStep === step.number
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-2 transition-all duration-300 ${currentStep > step.number
+                    ? 'bg-gradient-to-br from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/30'
+                    : currentStep === step.number
                       ? 'bg-gradient-to-br from-blue-600 to-cyan-600 text-white ring-4 ring-blue-200 shadow-xl shadow-blue-500/40 scale-110'
                       : 'bg-gray-100 text-gray-400'
-                  }`}>
+                    }`}>
                     {currentStep > step.number ? (
                       <Check className="w-7 h-7" />
                     ) : (
                       <step.icon className="w-7 h-7" />
                     )}
                   </div>
-                  <span className={`text-sm font-semibold ${
-                    currentStep >= step.number ? 'text-foreground' : 'text-muted-foreground'
-                  }`}>
+                  <span className={`text-sm font-semibold ${currentStep >= step.number ? 'text-foreground' : 'text-muted-foreground'
+                    }`}>
                     {step.title}
                   </span>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className={`flex-1 h-1 mx-4 -mt-6 rounded-full transition-all duration-300 ${
-                    currentStep > step.number ? 'bg-gradient-to-r from-blue-600 to-cyan-600' : 'bg-gray-200'
-                  }`} />
+                  <div className={`flex-1 h-1 mx-4 -mt-6 rounded-full transition-all duration-300 ${currentStep > step.number ? 'bg-gradient-to-r from-blue-600 to-cyan-600' : 'bg-gray-200'
+                    }`} />
                 )}
               </React.Fragment>
             ))}
@@ -135,8 +152,8 @@ export default function BookingFlow() {
               <h2 className="text-2xl font-bold mb-6">Confirma los detalles de tu sesión</h2>
               <div className="space-y-6">
                 <div className="flex gap-4">
-                  <img 
-                    src={therapist.image} 
+                  <img
+                    src={therapist.image}
                     alt={therapist.name}
                     className="w-20 h-20 rounded-2xl object-cover border-2 border-blue-100"
                   />
@@ -150,11 +167,11 @@ export default function BookingFlow() {
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Fecha</p>
                     <p className="font-bold">
-                      {new Date(date).toLocaleDateString('es-ES', { 
-                        weekday: 'long', 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
+                      {new Date(date).toLocaleDateString('es-ES', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
                       })}
                     </p>
                   </div>
@@ -233,22 +250,20 @@ export default function BookingFlow() {
                 <div className="grid grid-cols-2 gap-4">
                   <button
                     onClick={() => setFormData({ ...formData, paymentMethod: 'card' })}
-                    className={`p-6 border-2 rounded-2xl transition-all ${
-                      formData.paymentMethod === 'card'
-                        ? 'border-blue-600 bg-blue-50 shadow-lg shadow-blue-500/20'
-                        : 'border-blue-100 hover:border-blue-300'
-                    }`}
+                    className={`p-6 border-2 rounded-2xl transition-all ${formData.paymentMethod === 'card'
+                      ? 'border-blue-600 bg-blue-50 shadow-lg shadow-blue-500/20'
+                      : 'border-blue-100 hover:border-blue-300'
+                      }`}
                   >
                     <CreditCard className="w-7 h-7 mx-auto mb-2 text-blue-600" />
                     <p className="text-sm font-bold">Tarjeta</p>
                   </button>
                   <button
                     onClick={() => setFormData({ ...formData, paymentMethod: 'paypal' })}
-                    className={`p-6 border-2 rounded-2xl transition-all ${
-                      formData.paymentMethod === 'paypal'
-                        ? 'border-blue-600 bg-blue-50 shadow-lg shadow-blue-500/20'
-                        : 'border-blue-100 hover:border-blue-300'
-                    }`}
+                    className={`p-6 border-2 rounded-2xl transition-all ${formData.paymentMethod === 'paypal'
+                      ? 'border-blue-600 bg-blue-50 shadow-lg shadow-blue-500/20'
+                      : 'border-blue-100 hover:border-blue-300'
+                      }`}
                   >
                     <div className="w-7 h-7 mx-auto mb-2 flex items-center justify-center font-bold text-blue-600">
                       PP
@@ -330,7 +345,7 @@ export default function BookingFlow() {
                 </div>
                 <div className="absolute inset-0 bg-emerald-400 rounded-full blur-2xl opacity-30 animate-pulse"></div>
               </div>
-              
+
               <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent">
                 ¡Reserva confirmada!
               </h2>
@@ -348,9 +363,9 @@ export default function BookingFlow() {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Fecha</span>
                     <span className="font-semibold">
-                      {new Date(date).toLocaleDateString('es-ES', { 
-                        month: 'short', 
-                        day: 'numeric' 
+                      {new Date(date).toLocaleDateString('es-ES', {
+                        month: 'short',
+                        day: 'numeric'
                       })}
                     </span>
                   </div>
@@ -379,7 +394,6 @@ export default function BookingFlow() {
           )}
         </div>
 
-        {/* Navigation Buttons */}
         {currentStep < 4 && (
           <div className="flex justify-between">
             <Button
@@ -389,8 +403,14 @@ export default function BookingFlow() {
             >
               Atrás
             </Button>
-            <Button variant="gradient" onClick={handleNext}>
-              {currentStep === 3 ? 'Confirmar y Pagar' : 'Siguiente'}
+            <Button variant="gradient" onClick={handleNext} disabled={isProcessing}>
+              {isProcessing ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : currentStep === 3 ? (
+                'Confirmar y Pagar'
+              ) : (
+                'Siguiente'
+              )}
             </Button>
           </div>
         )}
