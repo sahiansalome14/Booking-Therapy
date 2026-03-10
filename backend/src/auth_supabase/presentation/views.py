@@ -1,15 +1,15 @@
-# src/auth_supabase/presentation/views.py
+# Cada vista extiende APIView y delega toda la lógica al Service Layer.
+# Las vistas solo: 1) validan entrada con Serializers, 2) llaman al servicio, 3) retornan HTTP response.
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from ..application.auth_service_factory import AuthServiceFactory
-from django.contrib.auth.models import User
-from .auth import SupabaseAuthentication
 from .serializers import SignupSerializer, EmailPasswordSerializer, SetRoleSerializer
+from ..application.factories import ProfileFactory
 
 
-# Signup
+# Registro de nuevos usuarios: valida email, password y rol, luego delega a AuthService.signup()
 class SignupView(APIView):
     permission_classes = [AllowAny]
 
@@ -27,7 +27,7 @@ class SignupView(APIView):
         return Response(data, status=status_code)
 
 
-# Login
+# Inicio de sesión: valida credenciales y retorna el JWT de Supabase y datos del perfil
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -44,25 +44,21 @@ class LoginView(APIView):
         return Response(data, status=status_code)
 
 
-# Verify Token
+# Verificación de token: confirma que el JWT es válido y retorna los datos del usuario
 class VerifyTokenView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        print("🔍 VerifyTokenView GET CALLED")
         token = request.headers.get("Authorization", "").replace("Bearer ", "")
         if not token:
-            print("❌ No token provided to VerifyTokenView")
             return Response({"detail": "Token no provisto"}, status=401)
 
         service = AuthServiceFactory.create()
         data, status_code = service.verify_token(token)
-        print("🔍 VerifyTokenView RETURNS:", data)
         return Response(data, status=status_code)
 
 
-
-# Provider Redirect (ejemplo OAuth)
+# Manejo del callback OAuth (Google, etc.): recibe el access_token e identifica al usuario
 class ProviderRedirectView(APIView):
     permission_classes = [AllowAny]
 
@@ -91,14 +87,15 @@ class ProviderRedirectView(APIView):
         return Response(user_data, status=200)
 
 
-# Set Role (frontend usa /api/auth/set-role/)
+# Asignación de rol post-registro: para usuarios que entraron por OAuth y aún no tienen rol
 class SetRoleView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        print("ENTRÓ A LA VISTA")
 
-        external_id = request.user.sub # Supabase ID from request.user (via auth backend)
+        external_id = (
+            request.user.sub
+        )  
         email = request.user.email
 
         serializer = SetRoleSerializer(data=request.data)
@@ -107,21 +104,16 @@ class SetRoleView(APIView):
 
         service = AuthServiceFactory.create()
 
-        # Check if profile already exists
         profile = service.profile_repo.get_by_external_auth_id(external_id)
         if not profile:
-            from ..application.factories import ProfileFactory
             profile = ProfileFactory.create_entity(
-                email=email,
-                role=role,
-                external_auth_id=external_id
+                email=email, role=role, external_auth_id=external_id
             )
         else:
             profile.role = role
 
         service.profile_repo.save_profile(profile)
 
-        return Response({
-            "detail": f"Rol asignado a {role}",
-            "internal_id": str(profile.id)
-        })
+        return Response(
+            {"detail": f"Rol asignado a {role}", "internal_id": str(profile.id)}
+        )
