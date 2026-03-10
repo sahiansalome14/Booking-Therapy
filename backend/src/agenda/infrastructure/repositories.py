@@ -55,7 +55,7 @@ class TherapistRepository(TherapistRepository):
     def _to_domain(self, profile: ProfileModel) -> DomainTherapist:
         """
         Mapea un modelo de infraestructura (Django ProfileModel)
-        a una entidad de dominio 
+        a una entidad de dominio
         """
         return DomainTherapist(
             id=profile.internal_id,
@@ -166,6 +166,13 @@ class AppointmentRepository(AppointmentRepository):
             start_datetime=appointment.start_datetime,
             end_datetime=appointment.end_datetime,
             created_at=appointment.created_at,
+            patient_name=appointment.patient.user.get_full_name()
+            or appointment.patient.user.email,
+            patient_email=appointment.patient.user.email,
+            therapist_name=appointment.therapist.user.get_full_name()
+            or appointment.therapist.user.email,
+            therapist_email=appointment.therapist.user.email,
+            therapist_location=appointment.therapist.location,
             price=float(appointment.price),
             modality=appointment.modality,
             meeting_link=appointment.meeting_link,

@@ -15,7 +15,6 @@ from ..application.services import (
 )
 from ..application.selectors import AgendaSelector
 from auth_supabase.application.auth_service_factory import AuthServiceFactory
-
 from ..infrastructure.repositories import AppointmentRepository, TherapistRepository
 from .serializers import (
     AvailabilitySerializer,
@@ -171,7 +170,8 @@ class AppointmentView(AgendaBaseView):
         serializer.is_valid(raise_exception=True)
 
         # Delega al BookingService para manejar transacciones y pagos.
-        service = BookingService(AppointmentRepository())
+        repo = AppointmentRepository()
+        service = BookingService(repo)
         try:
             appointment = service.execute(
                 therapist_id=str(serializer.validated_data["therapist_id"]),
@@ -189,9 +189,43 @@ class AppointmentView(AgendaBaseView):
             )
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            import traceback
+
+            print(traceback.format_exc())
+            return Response(
+                {"detail": "Error interno al procesar la reserva"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+class AppointmentDetailView(AgendaBaseView):
+    def get(self, request, appointment_id):
+        try:
+            profile_id = self.get_profile_id(request)
+            selector = AgendaSelector()
+            appointment = selector.get_appointment_by_id(str(appointment_id))
+
+            if not appointment:
+                return Response(
+                    {"detail": "Sesión no encontrada"}, status=status.HTTP_404_NOT_FOUND
+                )
+
+            # Verificar permisos (debe ser el paciente o el terapeuta)
+            if (
+                str(appointment.client_id) != profile_id
+                and str(appointment.therapist_id) != profile_id
+            ):
+                return Response(
+                    {"detail": "No tienes permiso para ver esta sesión"},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+
+            return Response(AppointmentSerializer(appointment).data)
         except Exception as e:
             return Response(
-                {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"detail": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
 
@@ -278,7 +312,7 @@ class AppointmentConfirmView(AgendaBaseView):
         therapist_id = self.get_profile_id(request)
         service = BookingService(AppointmentRepository())
         try:
-            appointment = service.confirm_appointment(appointment_id, therapist_id)
+            appointment = service.confirm_appointment(str(appointment_id), therapist_id)
             return Response(
                 AppointmentSerializer(appointment).data, status=status.HTTP_200_OK
             )
@@ -292,7 +326,9 @@ class AppointmentCompleteView(AgendaBaseView):
         therapist_id = self.get_profile_id(request)
         service = BookingService(AppointmentRepository())
         try:
-            appointment = service.complete_appointment(appointment_id, therapist_id)
+            appointment = service.complete_appointment(
+                str(appointment_id), therapist_id
+            )
             return Response(
                 AppointmentSerializer(appointment).data, status=status.HTTP_200_OK
             )

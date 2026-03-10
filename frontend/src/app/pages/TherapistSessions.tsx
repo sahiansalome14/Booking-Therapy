@@ -52,52 +52,46 @@ export default function TherapistSessions() {
 		const filter = statusFilter.toUpperCase();
 		const matchesStatus =
 			statusFilter === "all" ||
-			(filter === "PENDING" && s === "PENDIENTE") ||
-			(filter === "CONFIRMED" && (s === "RESERVADO" || s === "CONFIRMED")) ||
-			(filter === "COMPLETED" && s === "COMPLETADO") ||
-			(filter === "CANCELLED" && s === "CANCELADO");
+			(filter === "PENDING" && s === "SCHEDULED") ||
+			(filter === "CONFIRMED" && s === "CONFIRMED") ||
+			(filter === "COMPLETED" && s === "COMPLETED") ||
+			(filter === "CANCELLED" && s === "CANCELLED");
 
 		const matchesSearch =
-			session.patient_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			session.patient_email.toLowerCase().includes(searchQuery.toLowerCase());
+			session.patient_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			session.patient_email?.toLowerCase().includes(searchQuery.toLowerCase());
 		return matchesStatus && matchesSearch;
 	});
 
 	const getStatusBadge = (status: string) => {
-		const s = status.toUpperCase();
-		if (s === "RESERVADO" || s === "CONFIRMED")
+		const s = status ? status.toLowerCase() : "";
+		if (s === "confirmed")
 			return {
 				variant: "success" as const,
 				label: "Confirmada",
-				count: appointments.filter(
-					(a) =>
-						a.status.toUpperCase() === "RESERVADO" ||
-						a.status.toUpperCase() === "CONFIRMED",
-				).length,
+				count: appointments.filter((a) => a.status.toLowerCase() === "confirmed")
+					.length,
 			};
-		if (s === "PENDIENTE")
+		if (s === "scheduled")
 			return {
 				variant: "warning" as const,
 				label: "Pendiente",
-				count: appointments.filter(
-					(a) => a.status.toUpperCase() === "PENDIENTE",
-				).length,
+				count: appointments.filter((a) => a.status.toLowerCase() === "scheduled")
+					.length,
 			};
-		if (s === "COMPLETADO")
+		if (s === "completed")
 			return {
 				variant: "info" as const,
 				label: "Completada",
-				count: appointments.filter(
-					(a) => a.status.toUpperCase() === "COMPLETADO",
-				).length,
+				count: appointments.filter((a) => a.status.toLowerCase() === "completed")
+					.length,
 			};
-		if (s === "CANCELADO")
+		if (s === "cancelled")
 			return {
 				variant: "danger" as const,
 				label: "Cancelada",
-				count: appointments.filter(
-					(a) => a.status.toUpperCase() === "CANCELADO",
-				).length,
+				count: appointments.filter((a) => a.status.toLowerCase() === "cancelled")
+					.length,
 			};
 		return { variant: "warning" as const, label: status, count: 0 };
 	};
@@ -115,7 +109,7 @@ export default function TherapistSessions() {
 			);
 			setAppointments(
 				appointments.map((s) =>
-					s.internal_id === sessionId ? { ...s, status: "RESERVADO" } : s,
+					s.internal_id === sessionId ? { ...s, status: "confirmed" } : s,
 				),
 			);
 		} catch (error) {
@@ -130,7 +124,7 @@ export default function TherapistSessions() {
 				await agendaService.cancelAppointment(sessionId);
 				setAppointments(
 					appointments.map((s) =>
-						s.internal_id === sessionId ? { ...s, status: "CANCELADO" } : s,
+						s.internal_id === sessionId ? { ...s, status: "cancelled" } : s,
 					),
 				);
 			} catch (error) {
@@ -156,7 +150,7 @@ export default function TherapistSessions() {
 				);
 				setAppointments(
 					appointments.map((s) =>
-						s.internal_id === sessionId ? { ...s, status: "COMPLETADO" } : s,
+						s.internal_id === sessionId ? { ...s, status: "completed" } : s,
 					),
 				);
 			} catch (error) {
@@ -384,7 +378,7 @@ export default function TherapistSessions() {
 
 										{/* Actions */}
 										<div className="flex flex-wrap gap-2 lg:flex-col lg:w-48">
-											{session.status.toUpperCase() === "PENDIENTE" && (
+											{session.status.toLowerCase() === "scheduled" && (
 												<>
 													<Button
 														size="sm"
@@ -392,8 +386,20 @@ export default function TherapistSessions() {
 														onClick={() => handleConfirm(session.internal_id)}
 													>
 														<CheckCircle2 className="w-4 h-4 mr-1" />
-														Confirmar
+														Aceptar Cita
 													</Button>
+													<Link
+														to={`/session/${session.internal_id}`}
+														className="flex-1 lg:w-full"
+													>
+														<Button
+															variant="outline"
+															size="sm"
+															className="w-full"
+														>
+															Ver Detalles
+														</Button>
+													</Link>
 													<Button
 														variant="destructive"
 														size="sm"
@@ -407,8 +413,7 @@ export default function TherapistSessions() {
 												</>
 											)}
 
-											{(session.status.toUpperCase() === "RESERVADO" ||
-												session.status.toUpperCase() === "CONFIRMED") && (
+											{session.status.toLowerCase() === "confirmed" && (
 												<>
 													<Link
 														to={`/session/${session.internal_id}`}
@@ -448,7 +453,7 @@ export default function TherapistSessions() {
 												</>
 											)}
 
-											{session.status.toUpperCase() === "COMPLETADO" && (
+											{session.status.toLowerCase() === "completed" && (
 												<>
 													<Link
 														to={`/session/${session.internal_id}`}
@@ -465,7 +470,7 @@ export default function TherapistSessions() {
 												</>
 											)}
 
-											{session.status.toUpperCase() === "CANCELADO" && (
+											{session.status.toLowerCase() === "cancelled" && (
 												<Link
 													to={`/session/${session.internal_id}`}
 													className="w-full"

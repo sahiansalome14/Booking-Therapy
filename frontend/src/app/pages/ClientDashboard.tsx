@@ -27,13 +27,13 @@ export default function ClientDashboard() {
 	}, []);
 
 	const upcomingSessions = appointments
-		.filter(
-			(s) =>
-				(s.status === "RESERVADO" ||
-					s.status === "confirmed" ||
-					s.status === "PENDIENTE") &&
-				new Date(s.start_datetime) >= new Date(),
-		)
+		.filter((s) => {
+			const status = s.status ? s.status.toLowerCase() : "";
+			return (
+				(status === "confirmed" || status === "scheduled") &&
+				new Date(s.start_datetime) >= new Date()
+			);
+		})
 		.sort(
 			(a, b) =>
 				new Date(a.start_datetime).getTime() -
@@ -41,14 +41,14 @@ export default function ClientDashboard() {
 		);
 
 	const pastSessions = appointments
-		.filter(
-			(s) =>
-				s.status === "COMPLETADO" ||
-				s.status === "CANCELADO" ||
-				s.status === "completed" ||
-				s.status === "cancelled" ||
-				new Date(s.start_datetime) < new Date(),
-		)
+		.filter((s) => {
+			const status = s.status ? s.status.toLowerCase() : "";
+			return (
+				status === "completed" ||
+				status === "cancelled" ||
+				new Date(s.start_datetime) < new Date()
+			);
+		})
 		.sort(
 			(a, b) =>
 				new Date(b.start_datetime).getTime() -
@@ -70,26 +70,26 @@ export default function ClientDashboard() {
 	const totalSpent = appointments
 		.filter((s) => {
 			const d = new Date(s.start_datetime);
+			const status = s.status ? s.status.toLowerCase() : "";
 			return (
 				d.getMonth() === currentMonth &&
 				d.getFullYear() === currentYear &&
-				(s.status === "COMPLETADO" ||
-					s.status === "RESERVADO" ||
-					s.status === "PENDIENTE" ||
-					s.status === "completed")
+				(status === "completed" ||
+					status === "confirmed" ||
+					status === "scheduled")
 			);
 		})
 		.reduce((sum, s) => sum + Number(s.price || 0), 0);
 
 	const getStatusBadge = (status: string) => {
-		const s = status.toUpperCase();
-		if (s === "RESERVADO" || s === "CONFIRMED")
+		const s = status ? status.toLowerCase() : "";
+		if (s === "confirmed")
 			return { variant: "success" as const, label: "Confirmada" };
-		if (s === "PENDIENTE")
+		if (s === "scheduled")
 			return { variant: "warning" as const, label: "Pendiente" };
-		if (s === "COMPLETADO")
+		if (s === "completed")
 			return { variant: "info" as const, label: "Completada" };
-		if (s === "CANCELADO")
+		if (s === "cancelled")
 			return { variant: "danger" as const, label: "Cancelada" };
 		return { variant: "warning" as const, label: status };
 	};
@@ -100,7 +100,7 @@ export default function ClientDashboard() {
 				await agendaService.cancelAppointment(sessionId);
 				setAppointments(
 					appointments.map((s) =>
-						s.internal_id === sessionId ? { ...s, status: "CANCELADO" } : s,
+						s.internal_id === sessionId ? { ...s, status: "cancelled" } : s,
 					),
 				);
 			} catch (error) {
@@ -284,9 +284,8 @@ export default function ClientDashboard() {
 													Ver Detalles
 												</Button>
 											</Link>
-											{(session.status.toUpperCase() === "PENDIENTE" ||
-												session.status.toUpperCase() === "RESERVADO" ||
-												session.status.toUpperCase() === "CONFIRMED") && (
+											{(session.status.toLowerCase() === "scheduled" ||
+												session.status.toLowerCase() === "confirmed") && (
 												<Button
 													variant="destructive"
 													size="sm"
@@ -378,8 +377,7 @@ export default function ClientDashboard() {
 													Ver Detalles
 												</Button>
 											</Link>
-											{(session.status === "COMPLETADO" ||
-												session.status === "completed") && (
+											{session.status.toLowerCase() === "completed" && (
 												<Button variant="outline" size="sm" className="flex-1">
 													Dejar Reseña
 												</Button>

@@ -1,3 +1,4 @@
+import axios from "axios";
 import {
 	ArrowLeft,
 	BadgeCheck,
@@ -16,26 +17,21 @@ import { type Appointment, agendaService } from "../../services/agenda";
 import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
+import { useAuth } from "../context/AuthContext";
 
 export default function SessionDetailsPage() {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
+	const { user } = useAuth();
 	const [appointment, setAppointment] = useState<Appointment | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
 		const fetchSession = async () => {
+			if (!id) return;
 			try {
-				const appointments = await agendaService.getAppointments("patient");
-				const therapistApps = await agendaService.getAppointments("therapist");
-				const allApps = [...appointments, ...therapistApps];
-				const session = allApps.find((a) => a.internal_id === id);
-
-				if (session) {
-					setAppointment(session);
-				} else {
-					console.error("Session not found");
-				}
+				const session = await agendaService.getAppointmentById(id);
+				setAppointment(session);
 			} catch (error) {
 				console.error("Error fetching session details:", error);
 			} finally {
@@ -54,14 +50,14 @@ export default function SessionDetailsPage() {
 	};
 
 	const getStatusBadge = (status: string) => {
-		const s = status.toUpperCase();
-		if (s === "RESERVADO" || s === "CONFIRMED")
+		const s = status ? status.toLowerCase() : "";
+		if (s === "confirmed")
 			return { variant: "success" as const, label: "Confirmada" };
-		if (s === "PENDIENTE")
+		if (s === "scheduled")
 			return { variant: "warning" as const, label: "Pendiente" };
-		if (s === "COMPLETADO")
+		if (s === "completed")
 			return { variant: "info" as const, label: "Completada" };
-		if (s === "CANCELADO")
+		if (s === "cancelled")
 			return { variant: "danger" as const, label: "Cancelada" };
 		return { variant: "warning" as const, label: status };
 	};
@@ -315,6 +311,96 @@ export default function SessionDetailsPage() {
 								</div>
 							</section>
 						</div>
+					</div>
+					<div className="mt-8 pt-8 border-t border-border flex flex-wrap gap-4">
+						{(() => {
+							const s = appointment.status.toLowerCase();
+							const isPast = new Date(appointment.start_datetime) < new Date();
+							const canCancel =
+								(s === "scheduled" || s === "confirmed") && !isPast;
+
+							return (
+								<>
+									{s === "scheduled" && user?.role === "therapist" && (
+										<Button
+											variant="primary"
+											onClick={async () => {
+												try {
+													await axios.post(
+														`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v1/agenda/appointments/${appointment.internal_id}/confirm/`,
+														{},
+														{
+															headers: {
+																Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+															},
+														},
+													);
+													setAppointment({
+														...appointment,
+														status: "confirmed",
+													});
+												} catch (error) {
+													alert("No se pudo confirmar la sesión.");
+												}
+											}}
+										>
+											Aceptar Cita
+										</Button>
+									)}
+									{canCancel && (
+										<Button
+											variant="destructive"
+											onClick={async () => {
+												if (
+													confirm("¿Estás seguro de que deseas cancelar esta cita?")
+												) {
+													try {
+														await agendaService.cancelAppointment(
+															appointment.internal_id,
+														);
+														setAppointment({
+															...appointment,
+															status: "cancelled",
+														});
+													} catch (error) {
+														alert("No se pudo cancelar la sesión.");
+													}
+												}
+											}}
+										>
+											Cancelar Cita
+										</Button>
+									)}
+									{s === "confirmed" && isPast && user?.role === "therapist" && (
+										<Button
+											variant="primary"
+											className="bg-emerald-600 hover:bg-emerald-700 text-white"
+											onClick={async () => {
+												try {
+													await axios.post(
+														`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v1/agenda/appointments/${appointment.internal_id}/complete/`,
+														{},
+														{
+															headers: {
+																Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+															},
+														},
+													);
+													setAppointment({
+														...appointment,
+														status: "completed",
+													});
+												} catch (error) {
+													alert("No se pudo completar la sesión.");
+												}
+											}}
+										>
+											Marcar como Completada
+										</Button>
+									)}
+								</>
+							);
+						})()}
 					</div>
 				</Card>
 			</div>

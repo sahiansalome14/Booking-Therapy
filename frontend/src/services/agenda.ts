@@ -118,6 +118,13 @@ export const agendaService = {
 		});
 	},
 
+	async getAppointmentById(appointmentId: string): Promise<Appointment> {
+		const response = await axios.get(`${API_URL}/appointments/${appointmentId}/`, {
+			headers: getHeaders(),
+		});
+		return response.data;
+	},
+
 	async cancelAppointment(appointmentId: string): Promise<Appointment> {
 		const response = await axios.post(
 			`${API_URL}/appointments/${appointmentId}/cancel/`,

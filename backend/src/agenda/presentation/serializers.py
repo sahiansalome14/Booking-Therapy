@@ -41,42 +41,70 @@ class BlockSerializer(serializers.Serializer):
 
 # Serializador detallado para mostrar información de una cita.
 class AppointmentSerializer(serializers.Serializer):
-    internal_id = serializers.UUIDField(read_only=True)
+    id = serializers.SerializerMethodField()
+    internal_id = serializers.SerializerMethodField()
     start_datetime = serializers.DateTimeField()
     end_datetime = serializers.DateTimeField()
     price = serializers.DecimalField(max_digits=10, decimal_places=2)
-    status = serializers.CharField()
+    status = serializers.SerializerMethodField()
     modality = serializers.CharField()
     meeting_link = serializers.URLField(required=False, allow_null=True)
 
-    # Campos de visualización (se pueden pasar en el objeto o contexto)
-    therapist_name = serializers.CharField(required=False)
-    therapist_email = serializers.EmailField(required=False)
-    patient_name = serializers.CharField(required=False)
-    patient_email = serializers.EmailField(required=False)
-    therapist_location = serializers.CharField(required=False)
+    # Campos de visualización
+    therapist_name = serializers.SerializerMethodField()
+    therapist_email = serializers.SerializerMethodField()
+    patient_name = serializers.SerializerMethodField()
+    patient_email = serializers.SerializerMethodField()
+    therapist_location = serializers.SerializerMethodField()
 
-    def to_representation(self, instance):
-        # Soporte tanto para domain entities como para modelos Django
-        data = super().to_representation(instance)
+    def get_id(self, obj):
+        if hasattr(obj, "internal_id"):
+            return str(obj.internal_id)
+        return str(getattr(obj, "id", ""))
 
-        # Si es un modelo Django, mapear campos que no coinciden o son relacionales
-        if hasattr(instance, "therapist") and not data.get("therapist_name"):
-            data["therapist_name"] = (
-                instance.therapist.user.get_full_name() or instance.therapist.user.email
-            )
-            data["therapist_email"] = instance.therapist.user.email
-            data["therapist_location"] = instance.therapist.location
+    def get_internal_id(self, obj):
+        return self.get_id(obj)
 
-        if hasattr(instance, "patient") and not data.get("patient_name"):
-            data["patient_name"] = (
-                instance.patient.user.get_full_name() or instance.patient.user.email
-            )
-            data["patient_email"] = instance.patient.user.email
+    def get_status(self, obj):
+        status_obj = obj.status
+        if hasattr(status_obj, "value"):
+            return status_obj.value
+        return str(status_obj)
 
-        # Asegurar que internal_id se mapee a id para el frontend si es necesario
-        data["id"] = data.get("internal_id")
-        return data
+    def get_therapist_name(self, obj):
+        if hasattr(obj, "therapist_name") and obj.therapist_name:
+            return obj.therapist_name
+        if hasattr(obj, "therapist"):
+            return obj.therapist.user.get_full_name() or obj.therapist.user.email
+        return ""
+
+    def get_therapist_email(self, obj):
+        if hasattr(obj, "therapist_email") and obj.therapist_email:
+            return obj.therapist_email
+        if hasattr(obj, "therapist"):
+            return obj.therapist.user.email
+        return ""
+
+    def get_patient_name(self, obj):
+        if hasattr(obj, "patient_name") and obj.patient_name:
+            return obj.patient_name
+        if hasattr(obj, "patient"):
+            return obj.patient.user.get_full_name() or obj.patient.user.email
+        return ""
+
+    def get_patient_email(self, obj):
+        if hasattr(obj, "patient_email") and obj.patient_email:
+            return obj.patient_email
+        if hasattr(obj, "patient"):
+            return obj.patient.user.email
+        return ""
+
+    def get_therapist_location(self, obj):
+        if hasattr(obj, "therapist_location") and obj.therapist_location:
+            return obj.therapist_location
+        if hasattr(obj, "therapist"):
+            return obj.therapist.location
+        return ""
 
 
 # Serializador para validar la entrada al crear una nueva cita.

@@ -37,6 +37,11 @@ class Appointment:
     start_datetime: datetime
     end_datetime: datetime
     created_at: datetime
+    patient_name: str = ""
+    patient_email: str = ""
+    therapist_name: str = ""
+    therapist_email: str = ""
+    therapist_location: str = ""
     modality: str = "VIRTUAL"
     meeting_link: Optional[str] = None
     notes: Optional[str] = None

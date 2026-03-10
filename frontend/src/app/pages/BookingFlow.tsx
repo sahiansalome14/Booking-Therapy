@@ -615,20 +615,23 @@ export default function BookingFlow() {
 							</div>
 
 							<div className="flex flex-col sm:flex-row gap-4 justify-center">
-								<Link to="/client/dashboard" className="w-full sm:w-auto">
+								<Link
+									to={`/session/${confirmedAppointment?.internal_id}`}
+									className="w-full sm:w-auto"
+								>
 									<Button
-										variant="gradient"
-										className="w-full h-14 px-8 text-lg font-bold"
+										variant="primary"
+										className="w-full h-14 px-8 text-lg font-bold bg-blue-600 hover:bg-blue-700"
 									>
-										Ver mi Dashboard
+										Ver Detalles de la Cita
 									</Button>
 								</Link>
-								<Link to="/" className="w-full sm:w-auto">
+								<Link to="/client/dashboard" className="w-full sm:w-auto">
 									<Button
 										variant="outline"
 										className="w-full h-14 px-8 text-lg font-bold"
 									>
-										Volver al inicio
+										Ir al Dashboard
 									</Button>
 								</Link>
 							</div>
