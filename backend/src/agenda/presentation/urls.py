@@ -10,6 +10,7 @@ from .views import (
     TherapistProfileUpdateView,
     AppointmentCompleteView,
     AppointmentConfirmView,
+    AppointmentDetailView,
 )
 
 urlpatterns = [
@@ -30,6 +31,11 @@ urlpatterns = [
         "appointments/<uuid:appointment_id>/complete/",
         AppointmentCompleteView.as_view(),
         name="appointment-complete",
+    ),
+    path(
+        "appointments/<uuid:appointment_id>/",
+        AppointmentDetailView.as_view(),
+        name="appointment-detail",
     ),
     path("blocks/", BlockView.as_view(), name="blocks"),
     path("therapists/", TherapistListView.as_view(), name="therapist-list"),

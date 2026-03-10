@@ -47,6 +47,15 @@ class AgendaSelector:
         """
         return self.appointment_repo.get_by_client(UUID(patient_id))
 
+    def get_appointment_by_id(self, appointment_id):
+        """
+        Recupera una cita específica por su identificador único.
+        Soporta tanto string como objeto UUID.
+        """
+        if isinstance(appointment_id, str):
+            appointment_id = UUID(appointment_id)
+        return self.appointment_repo.get_by_id(appointment_id)
+
     def get_global_config(self):
         """
         Acceso a la configuración global de la plataforma para la agenda.

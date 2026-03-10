@@ -1,3 +1,4 @@
+import axios from "axios";
 import {
 	Calendar,
 	Clock,
@@ -37,22 +38,22 @@ export default function TherapistDashboard() {
 
 	const todayStr = new Date().toISOString().split("T")[0];
 
-	const todaySessions = appointments.filter(
-		(s) =>
+	const todaySessions = appointments.filter((s) => {
+		const status = s.status ? s.status.toLowerCase() : "";
+		return (
 			s.start_datetime.startsWith(todayStr) &&
-			(s.status === "RESERVADO" ||
-				s.status === "PENDIENTE" ||
-				s.status === "confirmed"),
-	);
+			(status === "confirmed" || status === "scheduled")
+		);
+	});
 
 	const upcomingSessions = appointments
-		.filter(
-			(s) =>
+		.filter((s) => {
+			const status = s.status ? s.status.toLowerCase() : "";
+			return (
 				new Date(s.start_datetime) >= new Date() &&
-				(s.status === "RESERVADO" ||
-					s.status === "PENDIENTE" ||
-					s.status === "confirmed"),
-		)
+				(status === "confirmed" || status === "scheduled")
+			);
+		})
 		.sort(
 			(a, b) =>
 				new Date(a.start_datetime).getTime() -
@@ -74,37 +75,38 @@ export default function TherapistDashboard() {
 	const monthlyRevenue = appointments
 		.filter((s) => {
 			const d = new Date(s.start_datetime);
+			const status = s.status ? s.status.toLowerCase() : "";
 			return (
 				d.getMonth() === currentMonth &&
 				d.getFullYear() === currentYear &&
-				(s.status === "COMPLETADO" ||
-					s.status === "RESERVADO" ||
-					s.status === "PENDIENTE" ||
-					s.status === "completed")
+				(status === "completed" ||
+					status === "confirmed" ||
+					status === "scheduled")
 			);
 		})
 		.reduce((sum, s) => sum + Number(s.price || 0), 0);
 
 	const monthlySessionsCount = appointments.filter((s) => {
 		const d = new Date(s.start_datetime);
+		const status = s.status ? s.status.toLowerCase() : "";
 		return (
 			d.getMonth() === currentMonth &&
 			d.getFullYear() === currentYear &&
-			s.status !== "CANCELADO"
+			status !== "cancelled"
 		);
 	}).length;
 
 	const totalClients = new Set(appointments.map((s) => s.patient_name)).size;
 
 	const getStatusBadge = (status: string) => {
-		const s = status.toUpperCase();
-		if (s === "RESERVADO" || s === "CONFIRMED")
+		const s = status ? status.toLowerCase() : "";
+		if (s === "confirmed")
 			return { variant: "success" as const, label: "Confirmada" };
-		if (s === "PENDIENTE")
+		if (s === "scheduled")
 			return { variant: "warning" as const, label: "Pendiente" };
-		if (s === "COMPLETADO")
+		if (s === "completed")
 			return { variant: "info" as const, label: "Completada" };
-		if (s === "CANCELADO")
+		if (s === "cancelled")
 			return { variant: "danger" as const, label: "Cancelada" };
 		return { variant: "warning" as const, label: status };
 	};
@@ -315,11 +317,68 @@ export default function TherapistDashboard() {
 													Ver Detalles
 												</Button>
 											</Link>
-											{session.status === "pending" && (
-												<Button size="sm" className="flex-1">
-													Confirmar
+											{session.status.toLowerCase() === "scheduled" && (
+												<Button
+													size="sm"
+													className="flex-1"
+													onClick={async () => {
+														try {
+															await axios.post(
+																`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v1/agenda/appointments/${session.internal_id}/confirm/`,
+																{},
+																{
+																	headers: {
+																		Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+																	},
+																},
+															);
+															setAppointments(
+																appointments.map((a) =>
+																	a.internal_id === session.internal_id
+																		? { ...a, status: "confirmed" }
+																		: a,
+																),
+															);
+														} catch (error) {
+															alert("No se pudo confirmar la cita.");
+														}
+													}}
+												>
+													Aceptar Cita
 												</Button>
 											)}
+
+											{session.status.toLowerCase() === "confirmed" &&
+												new Date(session.start_datetime) < new Date() && (
+													<Button
+														size="sm"
+														className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+														onClick={async () => {
+															try {
+																await axios.post(
+																	`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v1/agenda/appointments/${session.internal_id}/complete/`,
+																	{},
+																	{
+																		headers: {
+																			Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+																		},
+																	},
+																);
+																setAppointments(
+																	appointments.map((a) =>
+																		a.internal_id === session.internal_id
+																			? { ...a, status: "completed" }
+																			: a,
+																	),
+																);
+															} catch (error) {
+																alert("No se pudo completar la cita.");
+															}
+														}}
+													>
+														Completada
+													</Button>
+												)}
 										</div>
 									</Card>
 								))
