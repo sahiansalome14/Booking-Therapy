@@ -27,3 +27,4 @@ class AppointmentRepository(ABC):
     @abstractmethod
     def get_by_therapist(self, therapist_id: UUID) -> List[Appointment]:
         pass
+
