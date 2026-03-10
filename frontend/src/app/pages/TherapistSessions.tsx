@@ -189,7 +189,7 @@ export default function TherapistSessions() {
 							<div>
 								<p className="text-muted-foreground text-sm mb-1">Pendientes</p>
 								<p className="text-3xl font-bold text-yellow-600">
-									{getStatusBadge("PENDIENTE").count}
+									{getStatusBadge("scheduled").count}
 								</p>
 							</div>
 							<Badge variant="warning">Requiere acción</Badge>
@@ -206,7 +206,7 @@ export default function TherapistSessions() {
 									Confirmadas
 								</p>
 								<p className="text-3xl font-bold text-green-600">
-									{getStatusBadge("RESERVADO").count}
+									{getStatusBadge("confirmed").count}
 								</p>
 							</div>
 							<Badge variant="success">Activas</Badge>
@@ -223,7 +223,7 @@ export default function TherapistSessions() {
 									Completadas
 								</p>
 								<p className="text-3xl font-bold text-blue-600">
-									{getStatusBadge("COMPLETADO").count}
+									{getStatusBadge("completed").count}
 								</p>
 							</div>
 							<Badge variant="info">Histórico</Badge>
@@ -238,7 +238,7 @@ export default function TherapistSessions() {
 							<div>
 								<p className="text-muted-foreground text-sm mb-1">Canceladas</p>
 								<p className="text-3xl font-bold text-red-600">
-									{getStatusBadge("CANCELADO").count}
+									{getStatusBadge("cancelled").count}
 								</p>
 							</div>
 							<Badge variant="danger">Archivadas</Badge>
