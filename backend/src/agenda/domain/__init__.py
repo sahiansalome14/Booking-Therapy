@@ -1,12 +1,9 @@
-from .entities import Therapist, AvailabilitySlot, Appointment, AppointmentStatus
-from .builders import AvailabilitySlotBuilder, WeeklyScheduleBuilder, AppointmentBuilder
+from .entities import Therapist, Appointment, AppointmentStatus
+from .builders import AppointmentBuilder
 
 __all__ = [
-    'Therapist',
-    'AvailabilitySlot',
-    'Appointment',
-    'AppointmentStatus',
-    'AvailabilitySlotBuilder',
-    'WeeklyScheduleBuilder',
-    'AppointmentBuilder',
+    "Therapist",
+    "Appointment",
+    "AppointmentStatus",
+    "AppointmentBuilder",
 ]
