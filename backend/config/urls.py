@@ -14,9 +14,17 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+
+# Se utiliza el prefijo api/v1/ para implementar el versionado de la API.
+# Esto permite introducir cambios en una futura v2
+# sin afectar a los clientes (Frontend/App) que aún dependan de la estructura actual.
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
+    path("api/v1/auth/", include("auth_supabase.urls")),
+    path("api/v1/agenda/", include("agenda.urls")),
+    path("api/v1/payments/", include("payments.urls")),
 ]

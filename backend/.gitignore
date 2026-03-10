@@ -37,6 +37,7 @@ staticfiles/
 .idea/
 *.swp
 *.swo
+.ruff_cache/
 
 # ==========================
 # LOG FILES

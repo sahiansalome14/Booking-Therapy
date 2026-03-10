@@ -3,12 +3,29 @@
 
 # 📦 Backend - Vis Vitalis
 
-Backend desarrollado con Django + Django REST Framework, gestionado con Poetry para manejo de dependencias.
+Backend desarrollado con Django + Django REST Framework, utilizando PostgreSQL como base de datos y Poetry para la gestión de dependencias.
 
 ---
+
+## 🏗  Tecnologías principales
+
+* Django
+
+* Django REST Framework
+
+* PostgreSQL
+
+* Poetry
+
+* Supabase (Autenticación)
+
+---
+
 ## 🚀 Requisitos
 
 * Python 3.10+
+
+* PostgreSQL 13+
 
 * Poetry instalado
 
@@ -51,7 +68,18 @@ poetry env use python
 poetry install
 
 ```
+## 🐘 Configuración de PostgreSQL
 
+Crear base de datos:
+```bash
+CREATE DATABASE vis_vitalis;
+```
+
+Crear usuario (opcional):
+```bash
+CREATE USER vis_user WITH PASSWORD 'password';
+GRANT ALL PRIVILEGES ON DATABASE vis_vitalis TO vis_user;
+```
 ---
 ## 📦 Dependencias principales
 
@@ -77,10 +105,27 @@ En la carpeta del backend hay un .env.example sigue el ejemplo y configura tu .e
 Ejemplo:
 
 ```bash
+# Django
 SECRET_KEY=your-secret-key
 DEBUG=True
 ALLOWED_HOSTS=127.0.0.1,localhost
+
+# PostgreSQL
+DATABASE_URL=postgresql://vis_user:password@localhost:5432/vis_vitalis_db
+
+# Supabase
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_JWT_SECRET=your-jwt-secret
+
+# CORS
+CORS_ALLOWED_ORIGINS=http://localhost:5173
 ```
+🌍 CORS
+
+Configurado con django-cors-headers.
+
+Permite conexión con frontend local.
 
 ---
 ## ▶️ Ejecutar el servidor
@@ -121,9 +166,15 @@ http://127.0.0.1:8000/
 ```bash
 backend/
 │── config/
+│── apps/
+│   ├── domain/
+│   ├── application/
+│   ├── infrastructure/
+│   └── presentation/
 │── manage.py
 │── pyproject.toml
 │── poetry.lock
 │── .env
+│── .env.example
 │── README.md
 ```

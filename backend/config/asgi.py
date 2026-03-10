@@ -7,10 +7,14 @@ For more information on this file, see
 https://docs.djangoproject.com/en/5.2/howto/deployment/asgi/
 """
 
+# Es la interfaz moderna que permite a Django manejar conexiones asíncronas,
+# como WebSockets (chats) y tareas en segundo plano,
+# permitiendo procesar múltiples peticiones simultáneamente.
+
 import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
 application = get_asgi_application()
