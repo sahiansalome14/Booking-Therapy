@@ -137,12 +137,14 @@ class TherapistListView(APIView):
 
     def get(self, request):
         repo = TherapistRepository()
-        therapists = repo.get_all_active()
-
-        # TODO: Implementar filtros por especialidad en el repositorio si es necesario
         specialty = request.query_params.get("specialty")
+
+        # El filtro por especialidad se delega al repositorio (infraestructura),
+        # manteniendo la View libre de lógica de negocio.
         if specialty and specialty != "Todos":
-            therapists = [t for t in therapists if t.specialization == specialty]
+            therapists = repo.get_all_active_by_specialty(specialty)
+        else:
+            therapists = repo.get_all_active()
 
         return Response(TherapistSerializer(therapists, many=True).data)
 

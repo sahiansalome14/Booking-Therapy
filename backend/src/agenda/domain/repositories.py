@@ -14,6 +14,10 @@ class TherapistRepository(ABC):
     def get_all_active(self) -> List[Therapist]:
         pass
 
+    @abstractmethod
+    def get_all_active_by_specialty(self, specialty: str) -> List[Therapist]:
+        pass
+
 
 class AppointmentRepository(ABC):
     @abstractmethod
@@ -27,4 +31,3 @@ class AppointmentRepository(ABC):
     @abstractmethod
     def get_by_therapist(self, therapist_id: UUID) -> List[Appointment]:
         pass
-

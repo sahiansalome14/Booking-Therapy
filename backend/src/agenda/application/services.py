@@ -208,7 +208,7 @@ class BookingService:
             payment_info=payment_info or {},
         )
 
-        # 6. Si el pago es exitoso, persistir la cita usando el Domain Builder
+        # Si el pago es exitoso, persistir la cita usando el Domain Builder
         domain_appointment = (
             AppointmentBuilder()
             .with_therapist(UUID(therapist_id))

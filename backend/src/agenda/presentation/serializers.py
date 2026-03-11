@@ -16,7 +16,7 @@ class SlotSerializer(serializers.Serializer):
     date = serializers.DateField()
 
 
-# Serializador para la disponibilidad recurrente del terapeuta.
+# Serializador para la disponibilidad del terapeuta.
 class AvailabilitySerializer(serializers.Serializer):
     """
     Mapea los campos internos del modelo a nombres para el frontend.

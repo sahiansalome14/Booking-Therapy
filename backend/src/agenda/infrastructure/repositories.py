@@ -47,9 +47,17 @@ class TherapistRepository(TherapistRepository):
 
     def get_all_active(self) -> List[DomainTherapist]:
         """
-        Retorna la lista de todos los terapeutas registrados.
+        Retorna la lista de todos los terapeutas activos registrados.
         """
         profiles = ProfileModel.objects.filter(role="therapist")
+        return [self._to_domain(p) for p in profiles]
+
+    def get_all_active_by_specialty(self, specialty: str) -> List[DomainTherapist]:
+        """
+        Retorna terapeutas activos filtrados por especialidad.
+        El filtro se realiza en base de datos (ORM), no en la capa de presentación.
+        """
+        profiles = ProfileModel.objects.filter(role="therapist", specialty=specialty)
         return [self._to_domain(p) for p in profiles]
 
     def _to_domain(self, profile: ProfileModel) -> DomainTherapist:
