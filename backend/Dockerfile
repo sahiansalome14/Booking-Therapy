@@ -19,8 +19,9 @@ RUN poetry config virtualenvs.create false
 # Copiar archivos de dependencias
 COPY pyproject.toml poetry.lock ./
 
+
 # Instalar dependencias del proyecto 
-RUN poetry install --only main --no-root
+RUN poetry install --only main --no-interaction --no-ansi --no-root
 
 # Copiar el código fuente
 COPY . .
@@ -29,4 +30,4 @@ COPY . .
 EXPOSE 8000
 
 # Comando por defecto usando Gunicorn para producción
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["python", "-m", "gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
