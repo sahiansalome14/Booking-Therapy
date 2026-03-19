@@ -26,6 +26,8 @@ RUN poetry install --only main --no-interaction --no-ansi --no-root
 # Copiar el código fuente
 COPY . .
 
+ENV PYTHONPATH=/app:/app/src
+
 # Exponer el puerto
 EXPOSE 8000
 
