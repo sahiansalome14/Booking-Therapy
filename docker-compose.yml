@@ -1,6 +1,32 @@
-version: '3.8'
+#  Docker Compose — Vis Vitalis / Booking-Therapy
+#  Arquitectura: Strangler Pattern
+#
+#  Servicios:
+#    db               → PostgreSQL (base de datos local para desarrollo)
+#    backend          → Monolito Django  (API v1)
+#    payments-service → Microservicio Flask (API v2 - pagos estrangulados)
+#    nginx            → Proxy inverso que bifurca el tráfico
+#    frontend         → Aplicación React/Vite
+
 
 services:
+
+  # ── Base de datos PostgreSQL ──────────────────────────────────────────────
+  # Dentro de Docker, los contenedores no pueden usar "localhost" para
+  # referirse al host. Se necesita un servicio de BD en la misma red.
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: vis_vitalis_db
+      POSTGRES_USER: vis_user
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Sin port mapping: solo los servicios internos (backend) necesitan acceder.
+    # Docker resuelve el hostname "db" dentro de la red automáticamente.
+
+  # ── Monolito Django (API v1 — legado) ────────────────────────────────────
   backend:
     build:
       context: ./backend
@@ -9,26 +35,61 @@ services:
       sh -c "python manage.py migrate &&
              gunicorn config.wsgi:application --bind 0.0.0.0:8000"
     ports:
-      - "8000:8000"
+      - "8001:8000"
+    env_file:
+      - ./backend/.env
+    # Sobreescribimos solo DATABASE_URL para apuntar al servicio "db"
+    # en lugar de "localhost" (que dentro de Docker es el propio contenedor).
     environment:
-      - DATABASE_URL=${DATABASE_URL}
-      # Credenciales de Supabase
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
-      # Configuración de Django
-      - DEBUG=${DEBUG:-False}
-      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-*}
-      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost}
+      - DATABASE_URL=postgresql://vis_user:secret@db:5432/vis_vitalis_db
+    depends_on:
+      - db
 
+  # ── Microservicio Flask — Pagos (API v2 — estrangulado) ──────────────────
+  payments-service:
+    build:
+      context: ./payments-service
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/v2/payments/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ── Nginx — Orquestador de Tráfico ───────────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+      - payments-service
+
+  # ── Frontend React/Vite ──────────────────────────────────────────────────
   frontend:
     build:
       context: ./frontend
       args:
         VITE_BACKEND_URL: ${VITE_BACKEND_URL:-http://localhost:8000}
-        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
-        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-}
+    env_file:
+      - ./frontend/.env
     restart: always
     ports:
-      - "80:80"
+      - "3000:80"
     depends_on:
-      - backend
+      - nginx
+
+# ── Volúmenes persistentes ────────────────────────────────────────────────
+volumes:
+  postgres_data:

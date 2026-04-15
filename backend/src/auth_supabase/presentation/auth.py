@@ -32,6 +32,7 @@ class SupabaseAuthentication(BaseAuthentication):
 
         if not token:
             raise exceptions.AuthenticationFailed("Token requerido")
+            #return None
 
         # Delega la validación al servicio de autenticación
         service = AuthServiceFactory.create()
