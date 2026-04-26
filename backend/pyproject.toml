@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [tool.poetry]
-packages = [{include = "backend", from = "src"}]
+# No packages defined here as apps are in src/ and managed via PYTHONPATH
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
