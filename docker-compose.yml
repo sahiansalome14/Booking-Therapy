@@ -5,6 +5,7 @@
 #    db               → PostgreSQL (base de datos local para desarrollo)
 #    backend          → Monolito Django  (API v1)
 #    payments-service → Microservicio Flask (API v2 - pagos estrangulados)
+#    agenda-service   → Microservicio Flask (API v2 - agenda estrangulada)
 #    nginx            → Proxy inverso que bifurca el tráfico
 #    frontend         → Aplicación React/Vite
 
@@ -62,6 +63,30 @@ services:
       retries: 3
       start_period: 10s
 
+  # ── Microservicio Flask — Agenda (API v2 — estrangulado) ─────────────────
+  agenda-service:
+    build:
+      context: ./agenda-service
+    restart: always
+    ports:
+      - "5001:5001"
+    env_file:
+      - ./backend/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://vis_user:secret@db:5432/vis_vitalis_db
+      - PAYMENTS_SERVICE_URL=http://payments-service:5000
+    depends_on:
+      - db
+      - payments-service
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:5001/api/v2/agenda/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
   # ── Nginx — Orquestador de Tráfico ───────────────────────────────────────
   nginx:
     image: nginx:alpine
@@ -73,6 +98,7 @@ services:
     depends_on:
       - backend
       - payments-service
+      - agenda-service
 
   # ── Frontend React/Vite ──────────────────────────────────────────────────
   frontend:
