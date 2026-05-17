@@ -1,3 +1,8 @@
+"""
+Modelos de persistencia para el microservicio de Agenda.
+Representa las entidades del dominio mapeadas mediante SQLAlchemy a la base de datos exclusiva (vis_agenda_db).
+"""
+
 import uuid
 from datetime import time
 from sqlalchemy import (
@@ -8,6 +13,9 @@ from sqlalchemy.orm import relationship
 from infrastructure.database import Base
 
 class AuthUser(Base):
+    """
+    Tabla espejo local de usuarios administrada mediante eventos asíncronos.
+    """
     __tablename__ = "auth_user"
     id         = Column(Integer, primary_key=True)
     email      = Column(String(254), nullable=False)
@@ -17,6 +25,9 @@ class AuthUser(Base):
 
 
 class Profile(Base):
+    """
+    Tabla espejo local de perfiles de usuario (Clientes y Terapeutas).
+    """
     __tablename__ = "auth_supabase_profile"
     id               = Column(Integer, primary_key=True)
     internal_id      = Column(PGUUID(as_uuid=True), unique=True, default=uuid.uuid4)
@@ -44,6 +55,9 @@ class Profile(Base):
 
 
 class GlobalAgendaConfig(Base):
+    """
+    Configuración global de la agenda del sistema.
+    """
     __tablename__ = "agenda_globalagendaconfig"
     id                      = Column(Integer, primary_key=True)
     hora_inicio_plataforma  = Column(Time, default=time(6, 0))
@@ -53,6 +67,9 @@ class GlobalAgendaConfig(Base):
 
 
 class TherapistAvailability(Base):
+    """
+    Disponibilidad semanal de un terapeuta para citas.
+    """
     __tablename__  = "agenda_therapist_availability"
     __table_args__ = (UniqueConstraint("therapist_id", "day_of_week"),)
     id           = Column(Integer, primary_key=True)
@@ -65,6 +82,9 @@ class TherapistAvailability(Base):
 
 
 class TherapistBlock(Base):
+    """
+    Bloqueos temporales en la agenda de un terapeuta.
+    """
     __tablename__ = "agenda_therapist_block"
     id             = Column(Integer, primary_key=True)
     internal_id    = Column(PGUUID(as_uuid=True), unique=True, default=uuid.uuid4)
@@ -76,6 +96,9 @@ class TherapistBlock(Base):
 
 
 class Appointment(Base):
+    """
+    Reservas y citas agendadas entre un paciente y un terapeuta.
+    """
     __tablename__ = "agenda_appointment"
     id             = Column(Integer, primary_key=True)
     internal_id    = Column(PGUUID(as_uuid=True), unique=True, default=uuid.uuid4)

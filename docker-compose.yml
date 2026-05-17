@@ -1,20 +1,22 @@
 #  Docker Compose — Vis Vitalis / Booking-Therapy
-#  Arquitectura: Strangler Pattern
+#  Arquitectura: Strangler Pattern (Modularized & Event-Driven)
 #
 #  Servicios:
-#    db               → PostgreSQL (base de datos local para desarrollo)
-#    backend          → Monolito Django  (API v1)
-#    payments-service → Microservicio Flask (API v2 - pagos estrangulados)
-#    agenda-service   → Microservicio Flask (API v2 - agenda estrangulada)
-#    nginx            → Proxy inverso que bifurca el tráfico
+#    db               → PostgreSQL (Base de datos del monolito: vis_vitalis_db)
+#    agenda-db        → PostgreSQL (Base de datos aislada para Agenda: vis_agenda_db)
+#    payments-db      → PostgreSQL (Base de datos aislada para Pagos: vis_payments_db)
+#    redis            → Message Broker (PubSub/Colas para EDA)
+#    backend          → Monolito Django  (API v1 - Publicador de Eventos)
+#    payments-service → Microservicio Flask (API v2 - Pagos)
+#    payments-consumer→ Consumidor Redis asíncrono para Pagos
+#    agenda-service   → Microservicio Flask (API v2 - Agenda)
+#    agenda-consumer  → Consumidor Redis asíncrono para Agenda
+#    nginx            → Proxy inverso
 #    frontend         → Aplicación React/Vite
-
 
 services:
 
-  # ── Base de datos PostgreSQL ──────────────────────────────────────────────
-  # Dentro de Docker, los contenedores no pueden usar "localhost" para
-  # referirse al host. Se necesita un servicio de BD en la misma red.
+  # ── Base de datos PostgreSQL para el Monolito ──────────────────────────────
   db:
     image: postgres:16-alpine
     restart: always
@@ -24,10 +26,37 @@ services:
       POSTGRES_PASSWORD: secret
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    # Sin port mapping: solo los servicios internos (backend) necesitan acceder.
-    # Docker resuelve el hostname "db" dentro de la red automáticamente.
 
-  # ── Monolito Django (API v1 — legado) ────────────────────────────────────
+  # ── Base de datos aislada para el Microservicio de Agenda (Database-per-Service) ──
+  agenda-db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: vis_agenda_db
+      POSTGRES_USER: vis_user
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres_agenda_data:/var/lib/postgresql/data
+
+  # ── Base de datos aislada para el Microservicio de Pagos (Database-per-Service) ──
+  payments-db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: vis_payments_db
+      POSTGRES_USER: vis_user
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres_payments_data:/var/lib/postgresql/data
+
+  # ── Redis (Message Broker para EDA) ────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+
+  # ── Monolito Django (API v1 — Publicador de Eventos) ──────────────────────
   backend:
     build:
       context: ./backend
@@ -39,22 +68,29 @@ services:
       - "8001:8000"
     env_file:
       - ./backend/.env
-    # Sobreescribimos solo DATABASE_URL para apuntar al servicio "db"
-    # en lugar de "localhost" (que dentro de Docker es el propio contenedor).
     environment:
       - DATABASE_URL=postgresql://vis_user:secret@db:5432/vis_vitalis_db
+      - REDIS_HOST=redis
     depends_on:
       - db
+      - redis
 
-  # ── Microservicio Flask — Pagos (API v2 — estrangulado) ──────────────────
+  # ── Microservicio Flask — Pagos (API v2) ───────────────────────────────────
   payments-service:
     build:
       context: ./payments-service
     restart: always
     ports:
       - "5000:5000"
+    env_file:
+      - ./backend/.env
     environment:
       - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://vis_user:secret@payments-db:5432/vis_payments_db
+      - REDIS_HOST=redis
+    depends_on:
+      - payments-db
+      - redis
     healthcheck:
       test: ["CMD", "python", "-c",
              "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/v2/payments/health')"]
@@ -63,7 +99,23 @@ services:
       retries: 3
       start_period: 10s
 
-  # ── Microservicio Flask — Agenda (API v2 — estrangulado) ─────────────────
+  # ── Consumidor Asíncrono de Eventos para Pagos (EDA worker) ────────────────
+  payments-consumer:
+    build:
+      context: ./payments-service
+    restart: always
+    command: python infrastructure/event_consumer.py
+    env_file:
+      - ./backend/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://vis_user:secret@payments-db:5432/vis_payments_db
+      - REDIS_HOST=redis
+    depends_on:
+      - payments-db
+      - redis
+
+  # ── Microservicio Flask — Agenda (API v2) ──────────────────────────────────
   agenda-service:
     build:
       context: ./agenda-service
@@ -74,11 +126,13 @@ services:
       - ./backend/.env
     environment:
       - PYTHONUNBUFFERED=1
-      - DATABASE_URL=postgresql://vis_user:secret@db:5432/vis_vitalis_db
+      - DATABASE_URL=postgresql://vis_user:secret@agenda-db:5432/vis_agenda_db
       - PAYMENTS_SERVICE_URL=http://payments-service:5000
+      - REDIS_HOST=redis
     depends_on:
-      - db
+      - agenda-db
       - payments-service
+      - redis
     healthcheck:
       test: ["CMD", "python", "-c",
              "import urllib.request; urllib.request.urlopen('http://localhost:5001/api/v2/agenda/health')"]
@@ -86,6 +140,22 @@ services:
       timeout: 10s
       retries: 3
       start_period: 15s
+
+  # ── Consumidor Asíncrono de Eventos para Agenda (EDA worker) ───────────────
+  agenda-consumer:
+    build:
+      context: ./agenda-service
+    restart: always
+    command: python infrastructure/event_consumer.py
+    env_file:
+      - ./backend/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://vis_user:secret@agenda-db:5432/vis_agenda_db
+      - REDIS_HOST=redis
+    depends_on:
+      - agenda-db
+      - redis
 
   # ── Nginx — Orquestador de Tráfico ───────────────────────────────────────
   nginx:
@@ -119,3 +189,5 @@ services:
 # ── Volúmenes persistentes ────────────────────────────────────────────────
 volumes:
   postgres_data:
+  postgres_agenda_data:
+  postgres_payments_data:

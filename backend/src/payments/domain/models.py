@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, Optional
 
+
 @dataclass
 class OrderItem:
     """
@@ -15,9 +16,7 @@ class OrderItem:
     name: str  # Nombre descriptivo - recibo.
     price: float  # Precio unitario - transacción.
     quantity: int  # Cantidad de unidades.
-    metadata: dict = field(
-        default_factory=dict
-    )  # Información adicional 
+    metadata: dict = field(default_factory=dict)  # Información adicional
 
 
 # Entidad principal de dominio para la gestión de pagos.
@@ -34,6 +33,4 @@ class Order:
     total_amount: float
     status: str  # Estados posibles: 'PENDING', 'PAID', 'CANCELLED', 'FAILED'.
     created_at: datetime
-    payment_info: Optional[dict] = (
-        None  # Detalles técnicos del medio de pago 
-    )
+    payment_info: Optional[dict] = None  # Detalles técnicos del medio de pago

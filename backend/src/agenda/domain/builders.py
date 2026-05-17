@@ -65,4 +65,3 @@ class AppointmentBuilder:
             raise ValueError("Schedule (start/end) is required")
 
         return self._appointment
-

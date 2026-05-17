@@ -7,9 +7,9 @@ from uuid import UUID
 
 @dataclass
 class Profile:
-    id: UUID  # Identificador interno único del sistema 
+    id: UUID  # Identificador interno único del sistema
     external_auth_id: str  # ID proveniente del proveedor de autenticación (Supabase)
-    email: str  
+    email: str
     role: str  # client o therapist
     full_name: str = ""  # Nombre completo (opcional, sincronizado desde Supabase)
 

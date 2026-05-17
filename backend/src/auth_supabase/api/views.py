@@ -93,9 +93,7 @@ class SetRoleView(APIView):
 
     def post(self, request):
 
-        external_id = (
-            request.user.sub
-        )  
+        external_id = request.user.sub
         email = request.user.email
 
         serializer = SetRoleSerializer(data=request.data)

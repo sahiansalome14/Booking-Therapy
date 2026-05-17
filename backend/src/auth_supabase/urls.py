@@ -8,9 +8,7 @@ from .api.views import (
     SetRoleView,
 )
 
-app_name = (
-    "auth_supabase" 
-)
+app_name = "auth_supabase"
 
 urlpatterns = [
     path("signup/", SignupView.as_view(), name="signup"),  # POST  /api/v1/auth/signup/
@@ -25,5 +23,5 @@ urlpatterns = [
         "redirect/<str:provider>/",
         ProviderRedirectView.as_view(),
         name="provider_redirect",
-    ), 
+    ),
 ]
