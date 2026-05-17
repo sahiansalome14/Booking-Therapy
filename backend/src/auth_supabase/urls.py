@@ -1,6 +1,6 @@
 # Todos los endpoints se registran bajo el prefijo /api/v1/auth/ (definido en config/urls.py).
 from django.urls import path
-from .presentation.views import (
+from .api.views import (
     SignupView,
     LoginView,
     VerifyTokenView,

@@ -84,7 +84,7 @@ TEMPLATES = [
 ]
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "auth_supabase.presentation.auth.SupabaseAuthentication",
+        "auth_supabase.api.auth.SupabaseAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.AllowAny",),
 }
