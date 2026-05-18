@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "../components/Toast";
 import {
 	type Availability,
 	agendaService,
@@ -84,9 +85,9 @@ export default function TherapistSchedule() {
 		try {
 			await agendaService.setAvailability(newAvail);
 			fetchAgendaData();
-			alert(t("schedule.availabilityUpdated"));
+			toast.success(t("schedule.availabilityUpdated"));
 		} catch (error) {
-			alert(t("schedule.availabilityUpdateError"));
+			toast.error(t("schedule.availabilityUpdateError"));
 		}
 	};
 
@@ -96,9 +97,9 @@ export default function TherapistSchedule() {
 			setIsAddingBlock(false);
 			setNewBlock({ start_datetime: "", end_datetime: "", reason: "" });
 			fetchAgendaData();
-			alert(t("schedule.blockCreated"));
+			toast.success(t("schedule.blockCreated"));
 		} catch (error) {
-			alert(t("schedule.blockCreateError"));
+			toast.error(t("schedule.blockCreateError"));
 		}
 	};
 
@@ -115,9 +116,9 @@ export default function TherapistSchedule() {
 			await agendaService.setAvailability(updatedList);
 			setEditingAvail(null);
 			fetchAgendaData();
-			alert(t("schedule.availabilityUpdated"));
+			toast.success(t("schedule.availabilityUpdated"));
 		} catch (error) {
-			alert(t("schedule.saveAvailabilityError"));
+			toast.error(t("schedule.saveAvailabilityError"));
 		}
 	};
 
@@ -128,9 +129,9 @@ export default function TherapistSchedule() {
 		try {
 			await agendaService.deleteBlock(blockId);
 			fetchAgendaData();
-			alert(t("schedule.blockDeleted"));
+			toast.success(t("schedule.blockDeleted"));
 		} catch (error) {
-			alert(t("schedule.blockDeleteError"));
+			toast.error(t("schedule.blockDeleteError"));
 		}
 	};
 
@@ -144,7 +145,7 @@ export default function TherapistSchedule() {
 			});
 			fetchAgendaData();
 		} catch (error) {
-			alert(t("schedule.blockSlotError"));
+			toast.error(t("schedule.blockSlotError"));
 		}
 	};
 
@@ -158,7 +159,7 @@ export default function TherapistSchedule() {
 		<div className="min-h-screen bg-background py-8">
 			<div className="container mx-auto px-6">
 				<header className="mb-8">
-					<h1 className="text-3xl font-bold">{t("schedule.title")}</h1>
+					<h1 className="text-3xl font-bold">🗓️ {t("schedule.title")}</h1>
 					<p className="text-muted-foreground text-lg">
 						{t("schedule.subtitle")}
 					</p>

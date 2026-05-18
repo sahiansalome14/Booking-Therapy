@@ -29,7 +29,7 @@ export default function Landing() {
 					</div>
 				</div>
 
-				<div className="relative container mx-auto px-6 py-24">
+				<div className="relative container mx-auto px-6 pt-32 pb-20 md:pt-40 flex flex-col items-center justify-center min-h-[75vh]">
 					<div className="max-w-4xl mx-auto text-center">
 						<div className="inline-flex items-center gap-2.5 bg-white/80 backdrop-blur-sm px-5 py-2.5 rounded-full mb-8 border border-blue-200 shadow-lg hover:scale-105 transition-transform duration-300">
 							<Zap className="w-4 h-4 text-blue-600 animate-pulse" />
@@ -38,10 +38,11 @@ export default function Landing() {
 							</span>
 						</div>
 
-						<h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+						<h1 className="text-4xl md:text-5xl font-extrabold mb-6 leading-tight tracking-tight">
 							<span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-emerald-600 bg-clip-text text-transparent">
 								{t("landing.title")}
-							</span>
+							</span>{" "}
+							<span className="not-italic">🌻</span>
 						</h1>
 
 						<p className="text-xl text-muted-foreground mb-10 leading-relaxed max-w-2xl mx-auto">
@@ -77,14 +78,14 @@ export default function Landing() {
 			<section className="relative z-10 -mt-12 container mx-auto px-6">
 				<div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-8 bg-card/80 backdrop-blur-xl border border-border shadow-2xl rounded-[2.5rem]">
 					{[
-						{ label: t("landing.stats.therapists"), val: "500+" },
-						{ label: t("landing.stats.sessions"), val: "10k+" },
-						{ label: t("landing.stats.rating"), val: "4.9/5" },
-						{ label: t("landing.stats.tech"), val: "Tech" },
+						{ label: t("landing.stats.therapists"), val: "500+", emoji: "🧑‍⚕️" },
+						{ label: t("landing.stats.sessions"), val: "10k+", emoji: "📅" },
+						{ label: t("landing.stats.rating"), val: "4.9/5", emoji: "⭐" },
+						{ label: t("landing.stats.tech"), val: "Tech", emoji: "🚀" },
 					].map((stat, i) => (
 						<div key={i} className="text-center group">
 							<p className="text-3xl font-black text-primary group-hover:scale-110 transition-transform">
-								{stat.val}
+								{stat.emoji} {stat.val}
 							</p>
 							<p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
 								{stat.label}
@@ -104,7 +105,7 @@ export default function Landing() {
 								{t("landing.features.badge")}
 							</span>
 						</div>
-						<h2 className="text-5xl font-black mb-6 tracking-tight">
+						<h2 className="text-3xl md:text-4xl font-bold mb-6 tracking-tight">
 							{t("landing.features.title")}{" "}
 							<span className="text-primary italic">{t("landing.features.titleHighlight")}</span> {t("landing.features.titleEnd")}
 						</h2>
@@ -120,24 +121,28 @@ export default function Landing() {
 								title: t("landing.features.scheduling"),
 								description: t("landing.features.schedulingDesc"),
 								gradient: "from-blue-600 to-indigo-600",
+								emoji: "🗓️",
 							},
 							{
 								icon: Shield,
 								title: t("landing.features.security"),
 								description: t("landing.features.securityDesc"),
 								gradient: "from-cyan-500 to-blue-500",
+								emoji: "🔒",
 							},
 							{
 								icon: Heart,
 								title: t("landing.features.care"),
 								description: t("landing.features.careDesc"),
 								gradient: "from-teal-500 to-emerald-500",
+								emoji: "💚",
 							},
 							{
 								icon: TrendingUp,
 								title: t("landing.features.analytics"),
 								description: t("landing.features.analyticsDesc"),
 								gradient: "from-purple-600 to-pink-600",
+								emoji: "📈",
 							},
 						].map((feature, index) => (
 							<div
@@ -150,7 +155,7 @@ export default function Landing() {
 									<feature.icon className="w-8 h-8 text-white" />
 								</div>
 								<h3 className="text-2xl font-bold mb-4 tracking-tight">
-									{feature.title}
+									{feature.emoji} {feature.title}
 								</h3>
 								<p className="text-muted-foreground leading-relaxed font-medium">
 									{feature.description}
@@ -169,7 +174,7 @@ export default function Landing() {
 			<section className="py-24 bg-muted/30 relative">
 				<div className="container mx-auto px-6">
 					<div className="text-center mb-24">
-						<h2 className="text-5xl font-black mb-6 tracking-tight">
+						<h2 className="text-3xl md:text-4xl font-bold mb-6 tracking-tight">
 							{t("landing.steps.title")}
 						</h2>
 						<p className="text-muted-foreground text-xl">
@@ -187,18 +192,21 @@ export default function Landing() {
 									title: t("landing.steps.step1Title"),
 									description: t("landing.steps.step1Desc"),
 									color: "text-blue-600",
+									emoji: "🔍",
 								},
 								{
 									number: "02",
 									title: t("landing.steps.step2Title"),
 									description: t("landing.steps.step2Desc"),
 									color: "text-cyan-600",
+									emoji: "📆",
 								},
 								{
 									number: "03",
 									title: t("landing.steps.step3Title"),
 									description: t("landing.steps.step3Desc"),
 									color: "text-teal-600",
+									emoji: "✨",
 								},
 							].map((step, index) => (
 								<div key={index} className="text-center group">
@@ -212,7 +220,7 @@ export default function Landing() {
 											{index + 1}
 										</div>
 									</div>
-									<h3 className="text-2xl font-bold mb-4">{step.title}</h3>
+									<h3 className="text-2xl font-bold mb-4">{step.emoji} {step.title}</h3>
 									<p className="text-muted-foreground font-medium leading-relaxed">
 										{step.description}
 									</p>
@@ -233,10 +241,10 @@ export default function Landing() {
 					</div>
 
 					<div className="relative z-10 flex flex-col items-center text-center max-w-4xl mx-auto text-white">
-						<h2 className="text-5xl md:text-6xl font-black mb-8 leading-tight">
+						<h2 className="text-3xl md:text-4xl font-bold mb-6 leading-tight">
 							{t("landing.cta.title")}
 						</h2>
-						<p className="text-xl md:text-2xl mb-12 text-blue-10 font-medium opacity-90 leading-relaxed">
+						<p className="text-lg md:text-xl mb-10 text-blue-10 font-medium opacity-90 leading-relaxed">
 							{t("landing.cta.subtitle")}
 						</p>
 						<Link to="/search">

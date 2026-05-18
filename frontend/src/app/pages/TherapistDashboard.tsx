@@ -125,9 +125,9 @@ export default function TherapistDashboard() {
 		<div className="min-h-screen bg-background py-8">
 			<div className="container mx-auto px-6">
 				<div className="mb-8">
-					<h1 className="text-3xl font-bold mb-2">{t("therapistDashboard.title")}</h1>
+					<h1 className="text-3xl font-bold mb-2">🧑‍⚕️ {t("therapistDashboard.title")}</h1>
 					<p className="text-muted-foreground">
-						{t("therapistDashboard.welcomeBack", { name: user?.name || user?.email || "Terapeuta" })}
+						👋 {t("therapistDashboard.welcomeBack", { name: user?.name || user?.email || "Terapeuta" })}
 					</p>
 				</div>
 
@@ -137,7 +137,7 @@ export default function TherapistDashboard() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1">
-									{t("therapistDashboard.todaySessions")}
+									☀️ {t("therapistDashboard.todaySessions")}
 								</p>
 								<p className="text-3xl font-bold">{todaySessions.length}</p>
 								<p className="text-sm text-green-600 mt-1">{t("therapistDashboard.vsYesterday")}</p>
@@ -152,7 +152,7 @@ export default function TherapistDashboard() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1">
-									{t("therapistDashboard.upcomingSessions")}
+									📅 {t("therapistDashboard.upcomingSessions")}
 								</p>
 								<p className="text-3xl font-bold">{upcomingSessions.length}</p>
 								<p className="text-sm text-muted-foreground mt-1">
@@ -169,7 +169,7 @@ export default function TherapistDashboard() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1">
-									{t("therapistDashboard.monthlyRevenue")}
+									💰 {t("therapistDashboard.monthlyRevenue")}
 								</p>
 								<p className="text-2xl font-bold">
 									{formatCurrency(monthlyRevenue)}
@@ -188,7 +188,7 @@ export default function TherapistDashboard() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1">
-									{t("therapistDashboard.activeClients")}
+									👥 {t("therapistDashboard.activeClients")}
 								</p>
 								<p className="text-3xl font-bold">{totalClients}</p>
 								<p className="text-sm text-muted-foreground mt-1">
@@ -211,7 +211,7 @@ export default function TherapistDashboard() {
 									<Calendar className="w-5 h-5 text-primary" />
 								</div>
 								<div>
-									<p className="font-semibold">{t("therapistDashboard.manageSchedule")}</p>
+									<p className="font-semibold">🗓️ {t("therapistDashboard.manageSchedule")}</p>
 									<p className="text-sm text-muted-foreground">
 										{t("therapistDashboard.manageScheduleDesc")}
 									</p>
@@ -227,7 +227,7 @@ export default function TherapistDashboard() {
 									<Clock className="w-5 h-5 text-secondary" />
 								</div>
 								<div>
-									<p className="font-semibold">{t("therapistDashboard.viewSessions")}</p>
+									<p className="font-semibold">📋 {t("therapistDashboard.viewSessions")}</p>
 									<p className="text-sm text-muted-foreground">
 										{t("therapistDashboard.viewSessionsDesc")}
 									</p>
@@ -243,7 +243,7 @@ export default function TherapistDashboard() {
 									<User className="w-5 h-5 text-blue-600" />
 								</div>
 								<div>
-									<p className="font-semibold">{t("therapistDashboard.myProfile")}</p>
+									<p className="font-semibold">👤 {t("therapistDashboard.myProfile")}</p>
 									<p className="text-sm text-muted-foreground">
 										{t("therapistDashboard.myProfileDesc")}
 									</p>
@@ -256,7 +256,7 @@ export default function TherapistDashboard() {
 				<div className="grid lg:grid-cols-3 gap-6">
 					{/* Today's Sessions */}
 					<div className="lg:col-span-2">
-						<h2 className="text-xl font-semibold mb-4">{t("therapistDashboard.todaySessionsTitle")}</h2>
+						<h2 className="text-xl font-semibold mb-4">☀️ {t("therapistDashboard.todaySessionsTitle")}</h2>
 
 						<div className="space-y-4">
 							{todaySessions.length === 0 ? (
@@ -388,7 +388,7 @@ export default function TherapistDashboard() {
 
 					{/* Upcoming Sessions */}
 					<div>
-						<h2 className="text-xl font-semibold mb-4">{t("therapistDashboard.upcomingSessions")}</h2>
+						<h2 className="text-xl font-semibold mb-4">🔜 {t("therapistDashboard.upcomingSessions")}</h2>
 
 						<div className="space-y-3">
 							{upcomingSessions.slice(0, 5).map((session) => (

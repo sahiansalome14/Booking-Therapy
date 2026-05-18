@@ -8,11 +8,13 @@ Rutas disponibles:
 
 import logging
 from flask import Flask
+from flask_cors import CORS
 from api.routes import payments_bp
 from infrastructure.database import init_db, db
 
 # ── Configuración ─────────────────────────────────────────────────────────────
 app = Flask(__name__)
+CORS(app)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 

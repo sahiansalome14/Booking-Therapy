@@ -5,6 +5,7 @@ Modularized Entry Point
 
 import logging
 from flask import Flask, g
+from flask_cors import CORS
 from api.routes import agenda_bp
 
 # ── Configuración ─────────────────────────────────────────────────────────────
@@ -12,6 +13,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+CORS(app)
 
 # Registrar Blueprints
 # El prefijo /api/v2/agenda se mantiene para compatibilidad

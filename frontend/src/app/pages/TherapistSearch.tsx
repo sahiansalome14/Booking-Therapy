@@ -62,7 +62,7 @@ export default function TherapistSearch() {
 			<div className="container mx-auto px-6">
 				<div className="mb-10">
 					<h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-						{t("search.title")}
+						🔍 {t("search.title")}
 					</h1>
 					<p className="text-muted-foreground text-lg">
 						{t("search.subtitle")}
@@ -102,7 +102,7 @@ export default function TherapistSearch() {
 
 				<div className="mb-6">
 					<p className="text-muted-foreground font-medium">
-						{t("search.found", { count: filteredTherapists.length })}
+						🧑‍⚕️ {t("search.found", { count: filteredTherapists.length })}
 					</p>
 				</div>
 

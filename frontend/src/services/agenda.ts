@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = `${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v1/agenda`;
+const API_URL = `${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v2/agenda`;
 
 export interface Slot {
 	start: string;
@@ -43,6 +43,16 @@ const getHeaders = () => {
 	return { Authorization: `Bearer ${token}` };
 };
 
+const normalizeAppointment = (a: any): Appointment => ({
+	...a,
+	internal_id: a.internal_id ?? a.id,
+});
+
+const normalizeBlock = (b: any): Block => ({
+	...b,
+	internal_id: b.internal_id ?? b.id,
+});
+
 export const agendaService = {
 	async getSlots(therapistId: string, fecha: string): Promise<Slot[]> {
 		const response = await axios.get(`${API_URL}/slots/`, {
@@ -57,7 +67,11 @@ export const agendaService = {
 			params: { therapist_id: therapistId },
 			headers: getHeaders(),
 		});
-		return response.data;
+		return response.data.map((a: any) => ({
+			day:   a.day   ?? a.day_of_week,
+			start: a.start ?? (a.hora_inicio ? a.hora_inicio.substring(0, 5) : ""),
+			end:   a.end   ?? (a.hora_fin    ? a.hora_fin.substring(0, 5)    : ""),
+		}));
 	},
 
 	async setAvailability(availabilities: Availability[]): Promise<void> {
@@ -75,14 +89,14 @@ export const agendaService = {
 			params: { therapist_id: therapistId },
 			headers: getHeaders(),
 		});
-		return response.data;
+		return response.data.map(normalizeBlock);
 	},
 
 	async createBlock(data: Block): Promise<Block> {
 		const response = await axios.post(`${API_URL}/blocks/`, data, {
 			headers: getHeaders(),
 		});
-		return response.data;
+		return normalizeBlock(response.data);
 	},
 
 	async getAppointments(
@@ -92,7 +106,7 @@ export const agendaService = {
 			params: { role },
 			headers: getHeaders(),
 		});
-		return response.data;
+		return response.data.map(normalizeAppointment);
 	},
 
 	async createAppointment(data: {
@@ -108,7 +122,7 @@ export const agendaService = {
 		const response = await axios.post(`${API_URL}/appointments/`, data, {
 			headers: getHeaders(),
 		});
-		return response.data;
+		return normalizeAppointment(response.data);
 	},
 
 	async deleteBlock(blockId: string): Promise<void> {
@@ -122,7 +136,7 @@ export const agendaService = {
 		const response = await axios.get(`${API_URL}/appointments/${appointmentId}/`, {
 			headers: getHeaders(),
 		});
-		return response.data;
+		return normalizeAppointment(response.data);
 	},
 
 	async cancelAppointment(appointmentId: string): Promise<Appointment> {
@@ -133,6 +147,6 @@ export const agendaService = {
 				headers: getHeaders(),
 			},
 		);
-		return response.data;
+		return normalizeAppointment(response.data);
 	},
 };

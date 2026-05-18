@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import { type Therapist, therapistService } from "../../services/therapist";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
+import { toast } from "../components/Toast";
 
 export default function TherapistProfileSettings() {
 	const { t } = useTranslation();
@@ -62,10 +63,10 @@ export default function TherapistProfileSettings() {
 		setMessage({ type: "", text: "" });
 		try {
 			await therapistService.updateProfile(profile);
-			setMessage({ type: "success", text: t("profileSettings.success") });
+			toast.success(t("profileSettings.success"));
 		} catch (error) {
 			console.error("Error updating profile:", error);
-			setMessage({ type: "error", text: t("profileSettings.error") });
+			toast.error(t("profileSettings.error"));
 		} finally {
 			setIsSaving(false);
 		}
@@ -83,7 +84,7 @@ export default function TherapistProfileSettings() {
 		<div className="min-h-screen bg-background py-8">
 			<div className="container mx-auto px-6 max-w-4xl">
 				<div className="mb-8">
-					<h1 className="text-3xl font-bold mb-2">{t("profileSettings.title")}</h1>
+					<h1 className="text-3xl font-bold mb-2">⚙️ {t("profileSettings.title")}</h1>
 					<p className="text-muted-foreground">
 						{t("profileSettings.subtitle")}
 					</p>
@@ -106,7 +107,7 @@ export default function TherapistProfileSettings() {
 						<div className="p-4 border-b border-border mb-6">
 							<h2 className="text-xl font-semibold flex items-center gap-2">
 								<User className="w-5 h-5 text-blue-600" />
-								{t("profileSettings.basicInfo")}
+								👤 {t("profileSettings.basicInfo")}
 							</h2>
 						</div>
 

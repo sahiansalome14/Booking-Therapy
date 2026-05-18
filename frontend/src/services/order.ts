@@ -20,7 +20,7 @@ export interface Order {
 	total: number;
 }
 
-export const API_URL = `${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v1/payments`;
+export const API_URL = `${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v2/payments`;
 
 export const orderService = {
 	calculateTotal(items: OrderItem[]): number {
