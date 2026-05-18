@@ -21,11 +21,19 @@ jobs:
           echo "🚀 Iniciando Despliegue en AWS EC2..."
           echo "========================================="
 
-          # 1. Crear directorio de la aplicación si no existe
-          mkdir -p /home/ubuntu/app
-          cd /home/ubuntu/app
+          # 1. Asegurar que el plugin docker-buildx esté instalado en Amazon Linux
+          if [ ! -f "/usr/local/lib/docker/cli-plugins/docker-buildx" ]; then
+            echo "📦 Instalando plugin Docker Buildx (Requerido por Docker Compose)..."
+            sudo mkdir -p /usr/local/lib/docker/cli-plugins
+            sudo curl -SL https://github.com/docker/buildx/releases/download/v0.19.1/buildx-v0.19.1.linux-amd64 -o /usr/local/lib/docker/cli-plugins/docker-buildx
+            sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx
+          fi
 
-          # 2. Inicializar git si es la primera vez
+          # 2. Crear directorio de la aplicación si no existe
+          mkdir -p $HOME/app
+          cd $HOME/app
+
+          # 3. Inicializar git si es la primera vez
           if [ ! -d ".git" ]; then
             echo "📦 Inicializando repositorio Git por primera vez..."
             git init
@@ -33,27 +41,43 @@ jobs:
             git remote add origin https://github.com/${{ github.repository }}.git
           fi
 
-          # 3. Descargar los últimos cambios de la rama main
+          # 4. Descargar los últimos cambios de la rama main
           echo "📥 Descargando últimos cambios desde GitHub..."
           git fetch origin main
           git reset --hard origin/main
 
-          # 4. Verificar y crear archivos .env si no existen
-          echo "⚙️ Verificando archivos de configuración (.env)..."
-          if [ ! -f "backend/.env" ] && [ -f "backend/.env.example" ]; then
-            echo "Creando backend/.env desde example..."
-            cp backend/.env.example backend/.env
-          fi
-          if [ ! -f "frontend/.env" ] && [ -f "frontend/.env.example" ]; then
-            echo "Creando frontend/.env desde example..."
-            cp frontend/.env.example frontend/.env
-          fi
+          # 5. Generar archivos .env de producción de forma segura usando GitHub Secrets
+          echo "⚙️ Configurando archivos de entorno (.env) de forma segura..."
 
-          # 5. Construir y levantar contenedores con Docker Compose
-          echo "🐳 Ejecutando Docker Compose..."
+          # Archivo .env raíz (Para inyectar a Vite en Docker Compose)
+          echo "VITE_BACKEND_URL=http://${{ secrets.EC2_HOST }}" > .env
+          echo "VITE_SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
+          echo "VITE_SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+
+          # Archivo frontend/.env
+          echo "VITE_BACKEND_URL=http://${{ secrets.EC2_HOST }}" > frontend/.env
+          echo "VITE_SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> frontend/.env
+          echo "VITE_SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> frontend/.env
+
+          # Archivo backend/.env
+          echo "SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}" > backend/.env
+          echo "DEBUG=True" >> backend/.env
+          echo "ALLOWED_HOSTS=127.0.0.1,localhost,${{ secrets.EC2_HOST }}" >> backend/.env
+          echo "DATABASE_URL=postgresql://vis_user:secret@db:5432/vis_vitalis_db" >> backend/.env
+          echo "CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000,http://localhost,http://${{ secrets.EC2_HOST }}:3000,http://${{ secrets.EC2_HOST }}" >> backend/.env
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> backend/.env
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> backend/.env
+
+          # 6. Construir y levantar contenedores con Docker Compose
+          echo "🐳 Ejecutando Docker Compose (Forzando reconstrucción sin caché para Frontend y Backend)..."
+          docker compose build --no-cache frontend backend
           docker compose up -d --build
 
-          # 6. Limpiar imágenes antiguas para liberar espacio en disco
+          # Reiniciar Nginx para refrescar la caché de IPs internas de Docker
+          echo "🔄 Reiniciando Nginx para actualizar resolución DNS interna..."
+          docker compose restart nginx
+
+          # 7. Limpiar imágenes antiguas para liberar espacio en disco
           echo "🧹 Limpiando imágenes de Docker sin uso..."
           docker image prune -f
 

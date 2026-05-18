@@ -5,21 +5,20 @@ import os
 import requests
 from ..domain.repositories import AuthProvider
 
-# Las credenciales se leen desde variables de entorno para no exponerlas en el código
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_ANON_KEY = os.environ.get("SUPABASE_ANON_KEY")
-
 
 class SupabaseClient(AuthProvider):
     def __init__(self):
-        self.base_url = SUPABASE_URL.rstrip("/")
+        # Leemos las variables dinámicamente en el constructor para asegurar que django-environ ya haya cargado el .env
+        self.supabase_url = os.environ.get("SUPABASE_URL") or ""
+        self.supabase_anon_key = os.environ.get("SUPABASE_ANON_KEY") or ""
+        self.base_url = self.supabase_url.rstrip("/")
 
     def _headers(self):
         # Headers requeridos por la API de Supabase en cada petición
         return {
             "Content-Type": "application/json",
-            "apikey": SUPABASE_ANON_KEY,
-            "Authorization": f"Bearer {SUPABASE_ANON_KEY}",
+            "apikey": self.supabase_anon_key,
+            "Authorization": f"Bearer {self.supabase_anon_key}",
         }
 
     def signup(self, email, password):
@@ -42,6 +41,6 @@ class SupabaseClient(AuthProvider):
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {token}",
-            "apikey": SUPABASE_ANON_KEY,
+            "apikey": self.supabase_anon_key,
         }
         return requests.get(url, headers=headers)
