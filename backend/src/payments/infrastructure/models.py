@@ -24,7 +24,6 @@ class OrderModel(models.Model):
     # Detalles del método utilizado
     payment_method = models.CharField(max_length=50, blank=True, null=True)
 
-   
     payment_metadata = models.JSONField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

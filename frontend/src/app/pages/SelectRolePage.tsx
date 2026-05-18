@@ -2,12 +2,14 @@ import axios from "axios";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "../components/Button";
 import { useAuth } from "../context/AuthContext";
 
 export default function SelectRolePage() {
 	const navigate = useNavigate();
 	const { refreshUser } = useAuth();
+	const { t } = useTranslation();
 	const [role, setRole] = useState<"client" | "therapist">("client");
 	const [searchParams] = useState(() => {
 		try {
@@ -17,7 +19,6 @@ export default function SelectRolePage() {
 		}
 	});
 
-	// initialize role from query string if provided
 	useEffect(() => {
 		const r = searchParams.get("role");
 		if (r === "therapist" || r === "client") {
@@ -33,7 +34,7 @@ export default function SelectRolePage() {
 		setLoading(true);
 		const token = localStorage.getItem("access_token");
 		if (!token) {
-			setError("No hay token, vuelve a iniciar sesión");
+			setError(t("selectRole.noToken"));
 			setLoading(false);
 			return;
 		}
@@ -46,7 +47,6 @@ export default function SelectRolePage() {
 				{ headers: { Authorization: `Bearer ${token}` } },
 			);
 
-			// Update global context state
 			await refreshUser();
 
 			const dest =
@@ -54,7 +54,7 @@ export default function SelectRolePage() {
 			navigate(dest, { replace: true });
 		} catch (err: any) {
 			setError(
-				err.response?.data?.detail || err.message || "Error asignando rol",
+				err.response?.data?.detail || err.message || t("selectRole.errorAssigningRole"),
 			);
 		} finally {
 			setLoading(false);
@@ -67,11 +67,10 @@ export default function SelectRolePage() {
 				onSubmit={handleSubmit}
 				className="space-y-6 bg-card p-8 rounded-lg shadow-lg w-full max-w-md"
 			>
-				<h2 className="text-2xl font-bold text-center">Selecciona tu rol</h2>
+				<h2 className="text-2xl font-bold text-center">{t("selectRole.title")}</h2>
 				{searchParams.get("from") === "oauth" && (
 					<p className="text-sm text-center text-muted-foreground">
-						Acabas de iniciar sesión con un proveedor externo. Por favor elige
-						un rol para completar tu perfil.
+						{t("selectRole.oauthHint")}
 					</p>
 				)}
 				<div className="flex gap-4 justify-center">
@@ -84,7 +83,7 @@ export default function SelectRolePage() {
 							onChange={() => setRole("client")}
 							disabled={loading}
 						/>
-						Cliente
+						{t("selectRole.client")}
 					</label>
 					<label className="flex items-center gap-2">
 						<input
@@ -95,12 +94,12 @@ export default function SelectRolePage() {
 							onChange={() => setRole("therapist")}
 							disabled={loading}
 						/>
-						Terapeuta
+						{t("selectRole.therapist")}
 					</label>
 				</div>
 				{error && <div className="text-red-600 text-center">{error}</div>}
 				<Button type="submit" className="w-full" size="lg" disabled={loading}>
-					{loading ? "Guardando..." : "Continuar"}
+					{loading ? t("selectRole.saving") : t("selectRole.continue")}
 				</Button>
 			</form>
 		</div>

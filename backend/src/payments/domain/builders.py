@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List, Optional
 from .models import Order, OrderItem
 
+
 class OrderBuilder:
     """
     Se encarga de la construcción paso a paso de una instancia de la entidad Order.

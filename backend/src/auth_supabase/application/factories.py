@@ -16,7 +16,7 @@ class ProfileFactory:
         if role not in ["client", "therapist"]:
             raise ValueError(f"Rol inválido: {role}")
 
-        # Crea y retorna la entidad de dominio 
+        # Crea y retorna la entidad de dominio
         return Profile(
             id=uuid.uuid4(), external_auth_id=external_auth_id, email=email, role=role
         )

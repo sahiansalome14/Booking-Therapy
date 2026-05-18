@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { type Appointment, agendaService } from "../../services/agenda";
 import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
@@ -24,6 +25,7 @@ export default function TherapistSessions() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [statusFilter, setStatusFilter] = useState("all");
 	const [searchQuery, setSearchQuery] = useState("");
+	const { t, i18n } = useTranslation();
 
 	useEffect(() => {
 		const fetchAppointments = async () => {
@@ -40,9 +42,9 @@ export default function TherapistSessions() {
 	}, []);
 
 	const formatCurrency = (amount: number) => {
-		return new Intl.NumberFormat("es-CO", {
+		return new Intl.NumberFormat(i18n.language === "es" ? "es-CO" : "en-US", {
 			style: "currency",
-			currency: "COP",
+			currency: i18n.language === "es" ? "COP" : "USD",
 			minimumFractionDigits: 0,
 		}).format(amount);
 	};
@@ -68,28 +70,28 @@ export default function TherapistSessions() {
 		if (s === "confirmed")
 			return {
 				variant: "success" as const,
-				label: "Confirmada",
+				label: t("status.confirmed"),
 				count: appointments.filter((a) => a.status.toLowerCase() === "confirmed")
 					.length,
 			};
 		if (s === "scheduled")
 			return {
 				variant: "warning" as const,
-				label: "Pendiente",
+				label: t("status.scheduled"),
 				count: appointments.filter((a) => a.status.toLowerCase() === "scheduled")
 					.length,
 			};
 		if (s === "completed")
 			return {
 				variant: "info" as const,
-				label: "Completada",
+				label: t("status.completed"),
 				count: appointments.filter((a) => a.status.toLowerCase() === "completed")
 					.length,
 			};
 		if (s === "cancelled")
 			return {
 				variant: "danger" as const,
-				label: "Cancelada",
+				label: t("status.cancelled"),
 				count: appointments.filter((a) => a.status.toLowerCase() === "cancelled")
 					.length,
 			};
@@ -97,29 +99,31 @@ export default function TherapistSessions() {
 	};
 
 	const handleConfirm = async (sessionId: string) => {
-		try {
-			await axios.post(
-				`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v1/agenda/appointments/${sessionId}/confirm/`,
-				{},
-				{
-					headers: {
-						Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+		if (confirm(t("sessions.confirmAccept"))) {
+			try {
+				await axios.post(
+					`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v1/agenda/appointments/${sessionId}/confirm/`,
+					{},
+					{
+						headers: {
+							Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+						},
 					},
-				},
-			);
-			setAppointments(
-				appointments.map((s) =>
-					s.internal_id === sessionId ? { ...s, status: "confirmed" } : s,
-				),
-			);
-		} catch (error) {
-			console.error("Error al confirmar sesión:", error);
-			alert("No se pudo confirmar la sesión.");
+				);
+				setAppointments(
+					appointments.map((s) =>
+						s.internal_id === sessionId ? { ...s, status: "confirmed" } : s,
+					),
+				);
+			} catch (error) {
+				console.error("Error confirming session:", error);
+				alert(t("sessions.confirmError"));
+			}
 		}
 	};
 
 	const handleCancel = async (sessionId: string) => {
-		if (confirm("¿Estás seguro de que deseas cancelar esta cita?")) {
+		if (confirm(t("sessions.confirmCancel"))) {
 			try {
 				await agendaService.cancelAppointment(sessionId);
 				setAppointments(
@@ -128,15 +132,15 @@ export default function TherapistSessions() {
 					),
 				);
 			} catch (error) {
-				console.error("Error al cancelar sesión:", error);
-				alert("No se pudo cancelar la sesión.");
+				console.error("Error cancelling session:", error);
+				alert(t("sessions.cancelError"));
 			}
 		}
 	};
 
 	const handleComplete = async (sessionId: string) => {
 		if (
-			confirm("¿Estás seguro de que deseas marcar esta cita como completada?")
+			confirm(t("sessions.confirmComplete"))
 		) {
 			try {
 				await axios.post(
@@ -154,8 +158,8 @@ export default function TherapistSessions() {
 					),
 				);
 			} catch (error) {
-				console.error("Error al completar sesión:", error);
-				alert("No se pudo completar la sesión.");
+				console.error("Error completing session:", error);
+				alert(t("sessions.completeError"));
 			}
 		}
 	};
@@ -173,9 +177,9 @@ export default function TherapistSessions() {
 			<div className="container mx-auto px-6">
 				{/* Header */}
 				<div className="mb-8">
-					<h1 className="text-3xl font-bold mb-2">Gestión de Sesiones</h1>
+					<h1 className="text-3xl font-bold mb-2">{t("sessions.title")}</h1>
 					<p className="text-muted-foreground">
-						Administra todas tus sesiones y reservas
+						{t("sessions.subtitle")}
 					</p>
 				</div>
 
@@ -187,12 +191,12 @@ export default function TherapistSessions() {
 					>
 						<div className="flex items-start justify-between">
 							<div>
-								<p className="text-muted-foreground text-sm mb-1">Pendientes</p>
+								<p className="text-muted-foreground text-sm mb-1">{t("sessions.pending")}</p>
 								<p className="text-3xl font-bold text-yellow-600">
 									{getStatusBadge("scheduled").count}
 								</p>
 							</div>
-							<Badge variant="warning">Requiere acción</Badge>
+							<Badge variant="warning">{t("sessions.requiresAction")}</Badge>
 						</div>
 					</Card>
 
@@ -203,13 +207,13 @@ export default function TherapistSessions() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1">
-									Confirmadas
+									{t("sessions.confirmed")}
 								</p>
 								<p className="text-3xl font-bold text-green-600">
 									{getStatusBadge("confirmed").count}
 								</p>
 							</div>
-							<Badge variant="success">Activas</Badge>
+							<Badge variant="success">{t("sessions.active")}</Badge>
 						</div>
 					</Card>
 
@@ -220,13 +224,13 @@ export default function TherapistSessions() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1">
-									Completadas
+									{t("sessions.completed")}
 								</p>
 								<p className="text-3xl font-bold text-blue-600">
 									{getStatusBadge("completed").count}
 								</p>
 							</div>
-							<Badge variant="info">Histórico</Badge>
+							<Badge variant="info">{t("sessions.history")}</Badge>
 						</div>
 					</Card>
 
@@ -236,12 +240,12 @@ export default function TherapistSessions() {
 					>
 						<div className="flex items-start justify-between">
 							<div>
-								<p className="text-muted-foreground text-sm mb-1">Canceladas</p>
+								<p className="text-muted-foreground text-sm mb-1">{t("sessions.cancelled")}</p>
 								<p className="text-3xl font-bold text-red-600">
 									{getStatusBadge("cancelled").count}
 								</p>
 							</div>
-							<Badge variant="danger">Archivadas</Badge>
+							<Badge variant="danger">{t("sessions.archived")}</Badge>
 						</div>
 					</Card>
 				</div>
@@ -255,7 +259,7 @@ export default function TherapistSessions() {
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
 								<input
 									type="text"
-									placeholder="Buscar por cliente o email..."
+									placeholder={t("sessions.searchPlaceholder")}
 									value={searchQuery}
 									onChange={(e) => setSearchQuery(e.target.value)}
 									className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-input-background"
@@ -270,11 +274,11 @@ export default function TherapistSessions() {
 								onChange={(e) => setStatusFilter(e.target.value)}
 								className="w-full px-4 py-2.5 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-input-background"
 							>
-								<option value="all">Todos los estados</option>
-								<option value="pending">Pendientes</option>
-								<option value="confirmed">Confirmadas</option>
-								<option value="completed">Completadas</option>
-								<option value="cancelled">Canceladas</option>
+								<option value="all">{t("sessions.allStatuses")}</option>
+								<option value="pending">{t("sessions.pending")}</option>
+								<option value="confirmed">{t("sessions.confirmed")}</option>
+								<option value="completed">{t("sessions.completed")}</option>
+								<option value="cancelled">{t("sessions.cancelled")}</option>
 							</select>
 						</div>
 					</div>
@@ -283,10 +287,9 @@ export default function TherapistSessions() {
 				{/* Results Count */}
 				<div className="mb-4">
 					<p className="text-muted-foreground">
-						{filteredSessions.length}{" "}
 						{filteredSessions.length === 1
-							? "sesión encontrada"
-							: "sesiones encontradas"}
+							? t("sessions.sessionsFound_one", { count: filteredSessions.length })
+							: t("sessions.sessionsFound_other", { count: filteredSessions.length })}
 					</p>
 				</div>
 
@@ -297,10 +300,10 @@ export default function TherapistSessions() {
 							<div className="text-center py-12">
 								<Calendar className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
 								<p className="text-lg text-muted-foreground mb-2">
-									No se encontraron sesiones
+									{t("sessions.noSessions")}
 								</p>
 								<p className="text-sm text-muted-foreground">
-									Intenta cambiar los filtros o el término de búsqueda
+									{t("sessions.tryFilters")}
 								</p>
 							</div>
 						</Card>
@@ -332,7 +335,7 @@ export default function TherapistSessions() {
 														<span>{session.patient_email}</span>
 													</div>
 													<p className="text-primary mt-1 text-sm">
-														Sesión de Terapia
+														{t("sessions.therapySession")}
 													</p>
 												</div>
 											</div>
@@ -343,7 +346,7 @@ export default function TherapistSessions() {
 													<span>
 														{new Date(
 															session.start_datetime,
-														).toLocaleDateString("es-ES", {
+														).toLocaleDateString(i18n.language === "es" ? "es-ES" : "en-US", {
 															weekday: "long",
 															year: "numeric",
 															month: "long",
@@ -369,7 +372,7 @@ export default function TherapistSessions() {
 												{session.modality === "PRESENCIAL" &&
 													session.therapist_location && (
 														<div className="flex items-center gap-2 text-sm text-primary mt-1 col-span-full">
-															<span className="font-medium">Ubicación:</span>
+															<span className="font-medium">{t("sessions.location")}:</span>
 															<span>{session.therapist_location}</span>
 														</div>
 													)}
@@ -386,7 +389,7 @@ export default function TherapistSessions() {
 														onClick={() => handleConfirm(session.internal_id)}
 													>
 														<CheckCircle2 className="w-4 h-4 mr-1" />
-														Aceptar Cita
+														{t("sessions.acceptAppointment")}
 													</Button>
 													<Link
 														to={`/session/${session.internal_id}`}
@@ -397,7 +400,7 @@ export default function TherapistSessions() {
 															size="sm"
 															className="w-full"
 														>
-															Ver Detalles
+															{t("sessions.viewDetails")}
 														</Button>
 													</Link>
 													<Button
@@ -408,7 +411,7 @@ export default function TherapistSessions() {
 														disabled={isPast}
 													>
 														<X className="w-4 h-4 mr-1" />
-														Cancelar
+														{t("sessions.cancel")}
 													</Button>
 												</>
 											)}
@@ -424,7 +427,7 @@ export default function TherapistSessions() {
 															size="sm"
 															className="w-full"
 														>
-															Ver Detalles
+															{t("sessions.viewDetails")}
 														</Button>
 													</Link>
 													{isPast && (
@@ -437,7 +440,7 @@ export default function TherapistSessions() {
 															}
 														>
 															<CheckCircle2 className="w-4 h-4 mr-1" />
-															Marcar como Completada
+															{t("sessions.markCompleted")}
 														</Button>
 													)}
 													<Button
@@ -448,7 +451,7 @@ export default function TherapistSessions() {
 														disabled={isPast}
 													>
 														<X className="w-4 h-4 mr-1" />
-														Cancelar
+														{t("sessions.cancel")}
 													</Button>
 												</>
 											)}
@@ -464,7 +467,7 @@ export default function TherapistSessions() {
 															size="sm"
 															className="w-full"
 														>
-															Ver Detalles
+															{t("sessions.viewDetails")}
 														</Button>
 													</Link>
 												</>
@@ -480,7 +483,7 @@ export default function TherapistSessions() {
 														size="sm"
 														className="w-full"
 													>
-														Ver Detalles
+														{t("sessions.viewDetails")}
 													</Button>
 												</Link>
 											)}

@@ -1,16 +1,24 @@
 import { LogOut, Sparkles, User } from "lucide-react";
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import { Button } from "./Button";
 
 export function Header() {
 	const navigate = useNavigate();
 	const { user, signout, isAuthenticated } = useAuth();
+	const { t } = useTranslation();
+	const { locale, setLocale } = useLanguage();
 
 	const handleLogout = () => {
 		signout();
 		navigate("/login");
+	};
+
+	const toggleLanguage = () => {
+		setLocale(locale === "es" ? "en" : "es");
 	};
 
 	return (
@@ -31,25 +39,35 @@ export function Header() {
 					</Link>
 
 					<nav className="flex items-center gap-8">
+						{/* Selector de idioma */}
+						<button
+							onClick={toggleLanguage}
+							className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-blue-200 bg-white hover:bg-blue-50 transition-all duration-200 text-sm font-medium"
+							title={locale === "es" ? "Switch to English" : "Cambiar a Español"}
+						>
+							<span className="text-base">{locale === "es" ? "🇪🇸" : "🇺🇸"}</span>
+							<span className="text-xs font-bold text-blue-600 uppercase">{locale}</span>
+						</button>
+
 						{!isAuthenticated ? (
 							<>
 								<Link
 									to="/search"
 									className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium relative group"
 								>
-									Buscar Terapeutas
+									{t("nav.searchTherapists")}
 									<span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
 								</Link>
 								<Link
 									to="/login?role=therapist"
 									className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium relative group"
 								>
-									Soy Terapeuta
+									{t("nav.imTherapist")}
 									<span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
 								</Link>
 								<Link to="/login?role=client">
 									<Button variant="outline" size="sm">
-										Iniciar Sesión
+										{t("nav.login")}
 									</Button>
 								</Link>
 							</>
@@ -61,13 +79,13 @@ export function Header() {
 											to="/search"
 											className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium"
 										>
-											Buscar Terapeutas
+											{t("nav.searchTherapists")}
 										</Link>
 										<Link
 											to="/client/dashboard"
 											className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium"
 										>
-											Mi Dashboard
+											{t("nav.myDashboard")}
 										</Link>
 									</>
 								)}
@@ -78,25 +96,25 @@ export function Header() {
 											to="/therapist/dashboard"
 											className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium"
 										>
-											Dashboard
+											{t("nav.dashboard")}
 										</Link>
 										<Link
 											to="/therapist/schedule"
 											className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium"
 										>
-											Agenda
+											{t("nav.schedule")}
 										</Link>
 										<Link
 											to="/therapist/sessions"
 											className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium"
 										>
-											Sesiones
+											{t("nav.sessions")}
 										</Link>
 										<Link
 											to="/therapist/profile"
 											className="text-foreground hover:text-blue-600 transition-colors duration-200 font-medium"
 										>
-											Perfil
+											{t("nav.profile")}
 										</Link>
 									</>
 								)}
@@ -113,7 +131,7 @@ export function Header() {
 										className="text-red-500 hover:text-red-600 hover:bg-red-50"
 									>
 										<LogOut className="w-4 h-4 mr-2" />
-										Salir
+										{t("nav.logout")}
 									</Button>
 								</div>
 							</>

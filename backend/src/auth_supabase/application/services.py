@@ -16,7 +16,7 @@ class AuthService:
         return self._profile_repo
 
     def signup(self, email: str, password: str, role: str):
-        #Registrar al usuario en el proveedor externo (Supabase)
+        # Registrar al usuario en el proveedor externo (Supabase)
         resp = self._auth_provider.signup(email, password)
 
         if resp.status_code not in (200, 201):
