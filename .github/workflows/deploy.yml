@@ -1,0 +1,62 @@
+name: Despliegue Continuo a AWS Academy EC2
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    name: Desplegar en EC2
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Conectar a EC2, actualizar código y reiniciar Docker Compose
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          echo "========================================="
+          echo "🚀 Iniciando Despliegue en AWS EC2..."
+          echo "========================================="
+
+          # 1. Crear directorio de la aplicación si no existe
+          mkdir -p /home/ubuntu/app
+          cd /home/ubuntu/app
+
+          # 2. Inicializar git si es la primera vez
+          if [ ! -d ".git" ]; then
+            echo "📦 Inicializando repositorio Git por primera vez..."
+            git init
+            git branch -m main
+            git remote add origin https://github.com/${{ github.repository }}.git
+          fi
+
+          # 3. Descargar los últimos cambios de la rama main
+          echo "📥 Descargando últimos cambios desde GitHub..."
+          git fetch origin main
+          git reset --hard origin/main
+
+          # 4. Verificar y crear archivos .env si no existen
+          echo "⚙️ Verificando archivos de configuración (.env)..."
+          if [ ! -f "backend/.env" ] && [ -f "backend/.env.example" ]; then
+            echo "Creando backend/.env desde example..."
+            cp backend/.env.example backend/.env
+          fi
+          if [ ! -f "frontend/.env" ] && [ -f "frontend/.env.example" ]; then
+            echo "Creando frontend/.env desde example..."
+            cp frontend/.env.example frontend/.env
+          fi
+
+          # 5. Construir y levantar contenedores con Docker Compose
+          echo "🐳 Ejecutando Docker Compose..."
+          docker compose up -d --build
+
+          # 6. Limpiar imágenes antiguas para liberar espacio en disco
+          echo "🧹 Limpiando imágenes de Docker sin uso..."
+          docker image prune -f
+
+          echo "========================================="
+          echo "✅ ¡Despliegue completado con éxito!"
+          echo "========================================="
