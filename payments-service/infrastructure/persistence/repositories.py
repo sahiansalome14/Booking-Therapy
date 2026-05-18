@@ -1,5 +1,5 @@
 from .models import DBOrder, DBOrderItem
-from ..database import db
+from infrastructure.database import db
 
 class OrderRepository:
     def save(self, order_domain):

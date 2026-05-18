@@ -4,7 +4,7 @@ Representa las órdenes y la sincronización de perfiles mapeadas a la base de d
 """
 
 import uuid
-from ..database import db
+from infrastructure.database import db
 
 class AuthUser(db.Model):
     """

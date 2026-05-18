@@ -11,9 +11,12 @@ import {
 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
+import { useLanguage } from "../context/LanguageContext";
 import { Button } from "../components/Button";
 
 export default function Landing() {
+	const { t } = useLanguage();
+
 	return (
 		<div className="min-h-screen">
 			{/* Main Section */}
@@ -31,26 +34,18 @@ export default function Landing() {
 						<div className="inline-flex items-center gap-2.5 bg-white/80 backdrop-blur-sm px-5 py-2.5 rounded-full mb-8 border border-blue-200 shadow-lg hover:scale-105 transition-transform duration-300">
 							<Zap className="w-4 h-4 text-blue-600 animate-pulse" />
 							<span className="text-sm font-medium bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-								Energía vital a tu alcance
+								Vis Vitalis
 							</span>
 						</div>
 
-						<h1 className="text-6xl font-bold mb-6 leading-tight">
+						<h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
 							<span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-emerald-600 bg-clip-text text-transparent">
-								Conecta con terapeutas
+								{t("landing.title")}
 							</span>
-							<br />
-							<span className="text-foreground">para tu bienestar</span>
 						</h1>
 
 						<p className="text-xl text-muted-foreground mb-10 leading-relaxed max-w-2xl mx-auto">
-							Reserva sesiones de bienestar con los mejores terapeutas
-							independientes.
-							<span className="font-semibold text-blue-600">
-								{" "}
-								Agenda, paga y gestiona
-							</span>{" "}
-							todo en un solo lugar.
+							{t("landing.subtitle")}
 						</p>
 
 						<div className="relative z-20 flex gap-4 justify-center flex-wrap">
@@ -60,12 +55,12 @@ export default function Landing() {
 									size="lg"
 									className="px-10 shadow-2xl"
 								>
-									Reserva Sesión
+									{t("landing.searchBtn")}
 								</Button>
 							</Link>
-							<Link to="/therapist/login" className="cursor-pointer">
+							<Link to="/login?role=therapist" className="cursor-pointer">
 								<Button variant="outline" size="lg" className="px-10">
-									Soy Terapeuta
+									{t("nav.imTherapist")}
 								</Button>
 							</Link>
 						</div>
@@ -82,10 +77,10 @@ export default function Landing() {
 			<section className="relative z-10 -mt-12 container mx-auto px-6">
 				<div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-8 bg-card/80 backdrop-blur-xl border border-border shadow-2xl rounded-[2.5rem]">
 					{[
-						{ label: "Terapeutas", val: "500+" },
-						{ label: "Sesiones", val: "10k+" },
-						{ label: "Rating", val: "4.9/5" },
-						{ label: "Punta de lanza", val: "Tech" },
+						{ label: t("landing.stats.therapists"), val: "500+" },
+						{ label: t("landing.stats.sessions"), val: "10k+" },
+						{ label: t("landing.stats.rating"), val: "4.9/5" },
+						{ label: t("landing.stats.tech"), val: "Tech" },
 					].map((stat, i) => (
 						<div key={i} className="text-center group">
 							<p className="text-3xl font-black text-primary group-hover:scale-110 transition-transform">
@@ -106,16 +101,15 @@ export default function Landing() {
 						<div className="inline-flex items-center gap-2 bg-primary/5 px-4 py-2 rounded-full mb-6 border border-primary/10">
 							<Activity className="w-4 h-4 text-primary" />
 							<span className="text-sm font-bold text-primary uppercase tracking-tighter">
-								Ecosistema Profesional
+								{t("landing.features.badge")}
 							</span>
 						</div>
 						<h2 className="text-5xl font-black mb-6 tracking-tight">
-							Diseñado para el{" "}
-							<span className="text-primary italic">Máximo</span> Desempeño
+							{t("landing.features.title")}{" "}
+							<span className="text-primary italic">{t("landing.features.titleHighlight")}</span> {t("landing.features.titleEnd")}
 						</h2>
 						<p className="text-muted-foreground text-xl max-w-2xl mx-auto leading-relaxed font-medium">
-							Simplificamos la burocracia para que te enfoques en lo que
-							importa: tu proceso de sanación o tu práctica clínica.
+							{t("landing.features.subtitle")}
 						</p>
 					</div>
 
@@ -123,30 +117,26 @@ export default function Landing() {
 						{[
 							{
 								icon: Calendar,
-								title: "Scheduling Inteligente",
-								description:
-									"Agenda automatizada con sincronización en tiempo real y recordatorios.",
+								title: t("landing.features.scheduling"),
+								description: t("landing.features.schedulingDesc"),
 								gradient: "from-blue-600 to-indigo-600",
 							},
 							{
 								icon: Shield,
-								title: "Seguridad de Grado Militar",
-								description:
-									"Tus datos clínicos y financieros protegidos bajo los estándares más altos.",
+								title: t("landing.features.security"),
+								description: t("landing.features.securityDesc"),
 								gradient: "from-cyan-500 to-blue-500",
 							},
 							{
 								icon: Heart,
-								title: "Cuidado Humanizado",
-								description:
-									"Priorizamos la conexión humana en cada interacción digital.",
+								title: t("landing.features.care"),
+								description: t("landing.features.careDesc"),
 								gradient: "from-teal-500 to-emerald-500",
 							},
 							{
 								icon: TrendingUp,
-								title: "Analíticas de Progreso",
-								description:
-									"Visualiza tu evolución emocional y física de manera profesional.",
+								title: t("landing.features.analytics"),
+								description: t("landing.features.analyticsDesc"),
 								gradient: "from-purple-600 to-pink-600",
 							},
 						].map((feature, index) => (
@@ -166,7 +156,7 @@ export default function Landing() {
 									{feature.description}
 								</p>
 								<div className="mt-8 flex items-center text-primary font-bold group-hover:gap-2 transition-all">
-									Saber más{" "}
+									{t("landing.features.learnMore")}{" "}
 									<ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100" />
 								</div>
 							</div>
@@ -180,10 +170,10 @@ export default function Landing() {
 				<div className="container mx-auto px-6">
 					<div className="text-center mb-24">
 						<h2 className="text-5xl font-black mb-6 tracking-tight">
-							Tres Pasos al Éxito
+							{t("landing.steps.title")}
 						</h2>
 						<p className="text-muted-foreground text-xl">
-							Tu transformación comienza hoy.
+							{t("landing.steps.subtitle")}
 						</p>
 					</div>
 
@@ -194,23 +184,20 @@ export default function Landing() {
 							{[
 								{
 									number: "01",
-									title: "Explora y Elige",
-									description:
-										"Encuentra el especialista que mejor se adapte a tu perfil energético.",
+									title: t("landing.steps.step1Title"),
+									description: t("landing.steps.step1Desc"),
 									color: "text-blue-600",
 								},
 								{
 									number: "02",
-									title: "Reserva Segura",
-									description:
-										"Confirma tu sesión con pasarelas de pago cifradas de extremo a extremo.",
+									title: t("landing.steps.step2Title"),
+									description: t("landing.steps.step2Desc"),
 									color: "text-cyan-600",
 								},
 								{
 									number: "03",
-									title: "Evoluciona",
-									description:
-										"Accede a tu sesión y gestiona tu historial clínico con un clic.",
+									title: t("landing.steps.step3Title"),
+									description: t("landing.steps.step3Desc"),
 									color: "text-teal-600",
 								},
 							].map((step, index) => (
@@ -247,11 +234,10 @@ export default function Landing() {
 
 					<div className="relative z-10 flex flex-col items-center text-center max-w-4xl mx-auto text-white">
 						<h2 className="text-5xl md:text-6xl font-black mb-8 leading-tight">
-							¿Listo para liberar tu Potencial Vital?
+							{t("landing.cta.title")}
 						</h2>
 						<p className="text-xl md:text-2xl mb-12 text-blue-10 font-medium opacity-90 leading-relaxed">
-							Únete a la mayor red de bienestar profesional y comienza a vivir
-							con intención.
+							{t("landing.cta.subtitle")}
 						</p>
 						<Link to="/search">
 							<Button
@@ -259,7 +245,7 @@ export default function Landing() {
 								className="px-16 h-16 bg-white hover:bg-white/90 shadow-2xl transition-all hover:scale-105 active:scale-95 group"
 							>
 								<span className="text-primary text-xl font-black group-hover:mr-2 transition-all">
-									Elegir Terapeuta
+									{t("landing.cta.button")}
 								</span>
 								<Sparkles className="w-6 h-6 text-primary" />
 							</Button>

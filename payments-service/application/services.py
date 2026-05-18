@@ -1,7 +1,7 @@
 import logging
 from .builders import OrderBuilder
-from ..infrastructure.processors import PaymentProcessorFactory
-from ..infrastructure.persistence.repositories import OrderRepository
+from infrastructure.processors import PaymentProcessorFactory
+from infrastructure.persistence.repositories import OrderRepository
 
 logger = logging.getLogger(__name__)
 

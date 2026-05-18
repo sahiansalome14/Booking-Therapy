@@ -9,6 +9,7 @@ import {
 	ShieldAlert,
 } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
 	type Availability,
 	agendaService,
@@ -32,6 +33,7 @@ const MINUTES_BEFORE_LOCK = 15;
 
 export default function TherapistSchedule() {
 	const { user } = useAuth();
+	const { t, i18n } = useTranslation();
 	const [activeTab, setActiveTab] = useState("agenda");
 	const [selectedDate, setSelectedDate] = useState(
 		new Date().toISOString().split("T")[0],
@@ -82,9 +84,9 @@ export default function TherapistSchedule() {
 		try {
 			await agendaService.setAvailability(newAvail);
 			fetchAgendaData();
-			alert("Disponibilidad actualizada");
+			alert(t("schedule.availabilityUpdated"));
 		} catch (error) {
-			alert("Error updating availability");
+			alert(t("schedule.availabilityUpdateError"));
 		}
 	};
 
@@ -94,9 +96,9 @@ export default function TherapistSchedule() {
 			setIsAddingBlock(false);
 			setNewBlock({ start_datetime: "", end_datetime: "", reason: "" });
 			fetchAgendaData();
-			alert("Bloqueo creado");
+			alert(t("schedule.blockCreated"));
 		} catch (error) {
-			alert("Error creating block");
+			alert(t("schedule.blockCreateError"));
 		}
 	};
 
@@ -113,46 +115,52 @@ export default function TherapistSchedule() {
 			await agendaService.setAvailability(updatedList);
 			setEditingAvail(null);
 			fetchAgendaData();
-			alert("Disponibilidad actualizada");
+			alert(t("schedule.availabilityUpdated"));
 		} catch (error) {
-			alert("Error al guardar disponibilidad");
+			alert(t("schedule.saveAvailabilityError"));
 		}
 	};
 
 	const handleDeleteBlock = async (blockId: string) => {
 		if (!blockId) return;
-		if (!confirm("¿Estás seguro de eliminar este bloqueo?")) return;
+		if (!confirm(t("schedule.confirmDeleteBlock"))) return;
 
 		try {
 			await agendaService.deleteBlock(blockId);
 			fetchAgendaData();
-			alert("Bloqueo eliminado");
+			alert(t("schedule.blockDeleted"));
 		} catch (error) {
-			alert("Error al eliminar bloqueo");
+			alert(t("schedule.blockDeleteError"));
 		}
 	};
 
 	const handleBlockSlot = async (slot: Slot) => {
-		if (!confirm(`¿Bloquear el horario ${slot.start}?`)) return;
+		if (!confirm(t("schedule.confirmBlockSlot", { time: slot.start }))) return;
 		try {
 			await agendaService.createBlock({
 				start_datetime: slot.start_datetime,
 				end_datetime: slot.end_datetime,
-				reason: "Bloqueo manual",
+				reason: t("schedule.manualBlock"),
 			});
 			fetchAgendaData();
 		} catch (error) {
-			alert("Error al bloquear slot");
+			alert(t("schedule.blockSlotError"));
 		}
+	};
+
+	const getDayName = (dayIdx: number) => {
+		const daysEs = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+		const daysEn = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+		return i18n.language === "es" ? daysEs[dayIdx] : daysEn[dayIdx];
 	};
 
 	return (
 		<div className="min-h-screen bg-background py-8">
 			<div className="container mx-auto px-6">
 				<header className="mb-8">
-					<h1 className="text-3xl font-bold">Panel de Agenda</h1>
+					<h1 className="text-3xl font-bold">{t("schedule.title")}</h1>
 					<p className="text-muted-foreground text-lg">
-						Gestiona tus horarios y sesiones con facilidad.
+						{t("schedule.subtitle")}
 					</p>
 				</header>
 
@@ -172,17 +180,17 @@ export default function TherapistSchedule() {
 									>
 										{tab === "agenda" && (
 											<span className="flex items-center justify-center gap-2">
-												<CalendarIcon className="w-4 h-4" /> Agenda
+												<CalendarIcon className="w-4 h-4" /> {t("schedule.tabAgenda")}
 											</span>
 										)}
 										{tab === "availability" && (
 											<span className="flex items-center justify-center gap-2">
-												<Clock className="w-4 h-4" /> Mi Horario
+												<Clock className="w-4 h-4" /> {t("schedule.tabMySchedule")}
 											</span>
 										)}
 										{tab === "blocks" && (
 											<span className="flex items-center justify-center gap-2">
-												<ShieldAlert className="w-4 h-4" /> Bloqueos
+												<ShieldAlert className="w-4 h-4" /> {t("schedule.tabBlocks")}
 											</span>
 										)}
 									</button>
@@ -194,8 +202,7 @@ export default function TherapistSchedule() {
 									<div className="space-y-6">
 										<div className="flex items-center justify-between">
 											<h2 className="text-xl font-bold flex items-center gap-2">
-												<CalendarIcon className="w-5 h-5 text-primary" /> Vista
-												de Slots
+												<CalendarIcon className="w-5 h-5 text-primary" /> {t("schedule.viewSlots")}
 											</h2>
 											<input
 												type="date"
@@ -235,7 +242,7 @@ export default function TherapistSchedule() {
 																			handleBlockSlot(slot);
 																		}}
 																		className="absolute top-2 right-2 p-1.5 rounded-lg bg-white border shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 hover:text-red-600 hover:border-red-100"
-																		title="Bloquear Slot"
+																		title={t("schedule.newBlock")}
 																	>
 																		<Lock className="w-3.5 h-3.5" />
 																	</button>
@@ -247,7 +254,7 @@ export default function TherapistSchedule() {
 																	{slot.start}
 																</div>
 																<div className="text-xs text-muted-foreground">
-																	Sesión 45m
+																	{t("booking.sessionWith", { name: "" }).replace("Sesión con ", "").replace("Session with ", "")} 45m
 																</div>
 
 																{isExpired ? (
@@ -255,14 +262,14 @@ export default function TherapistSchedule() {
 																		variant="default"
 																		className="mt-2 text-[10px] bg-muted-foreground/10 text-muted-foreground"
 																	>
-																		Expirado
+																		{t("schedule.expired")}
 																	</Badge>
 																) : (
 																	<Badge
 																		variant="default"
 																		className="mt-2 text-[10px] bg-white text-primary"
 																	>
-																		Disponible
+																		{t("schedule.available")}
 																	</Badge>
 																)}
 															</div>
@@ -272,10 +279,10 @@ export default function TherapistSchedule() {
 													<div className="col-span-full py-20 text-center bg-muted/20 rounded-3xl border border-dashed border-border leading-relaxed">
 														<CalendarIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
 														<p className="text-muted-foreground text-lg">
-															No hay slots disponibles para {selectedDate}.
+															{t("schedule.noSlots", { date: selectedDate })}
 														</p>
 														<p className="text-sm text-muted-foreground mt-1">
-															Configura tu horario semanal o elimina bloqueos.
+															{t("schedule.noSlotsDesc")}
 														</p>
 													</div>
 												)}
@@ -287,29 +294,17 @@ export default function TherapistSchedule() {
 								{activeTab === "availability" && (
 									<div className="space-y-6">
 										<h2 className="text-xl font-bold flex items-center gap-2">
-											<Clock className="w-5 h-5 text-primary" /> Configurar
-											Horario Semanal
+											<Clock className="w-5 h-5 text-primary" /> {t("schedule.weeklySchedule")}
 										</h2>
 
 										{editingAvail && (
 											<Card className="p-6 border-primary bg-primary/5">
 												<h3 className="font-bold mb-4 text-primary">
-													Editando:{" "}
-													{
-														[
-															"Lunes",
-															"Martes",
-															"Miércoles",
-															"Jueves",
-															"Viernes",
-															"Sábado",
-															"Domingo",
-														][editingAvail.day]
-													}
+													{t("schedule.editing")}: {getDayName(editingAvail.day)}
 												</h3>
 												<div className="grid grid-cols-2 gap-4 mb-4">
 													<div className="space-y-2">
-														<Label>Hora Inicio</Label>
+														<Label>{t("schedule.startTime")}</Label>
 														<Input
 															type="time"
 															value={editingAvail.start}
@@ -322,7 +317,7 @@ export default function TherapistSchedule() {
 														/>
 													</div>
 													<div className="space-y-2">
-														<Label>Hora Fin</Label>
+														<Label>{t("schedule.endTime")}</Label>
 														<Input
 															type="time"
 															value={editingAvail.end}
@@ -340,37 +335,29 @@ export default function TherapistSchedule() {
 														variant="ghost"
 														onClick={() => setEditingAvail(null)}
 													>
-														Cancelar
+														{t("booking.back")}
 													</Button>
 													<Button onClick={handleSaveDayAvailability}>
-														Guardar
+														{t("profileSettings.saveChanges")}
 													</Button>
 												</div>
 											</Card>
 										)}
 
 										<div className="grid gap-4">
-											{[
-												"Lunes",
-												"Martes",
-												"Miércoles",
-												"Jueves",
-												"Viernes",
-												"Sábado",
-												"Domingo",
-											].map((day, idx) => {
+											{[0, 1, 2, 3, 4, 5, 6].map((idx) => {
 												const avail = availabilities.find((a) => a.day === idx);
 												return (
 													<div
 														key={idx}
 														className="flex items-center justify-between p-4 border rounded-2xl bg-muted/10 hover:bg-muted/20 transition-all"
 													>
-														<span className="font-semibold text-lg">{day}</span>
+														<span className="font-semibold text-lg">{getDayName(idx)}</span>
 														<div className="flex items-center gap-4">
 															<span className="text-muted-foreground">
 																{avail
 																	? `${avail.start.substring(0, 5)} - ${avail.end.substring(0, 5)}`
-																	: "Sin horario set"}
+																	: t("schedule.noSchedule")}
 															</span>
 															<Button
 																variant="outline"
@@ -385,7 +372,7 @@ export default function TherapistSchedule() {
 																	})
 																}
 															>
-																Editar
+																{t("schedule.edit")}
 															</Button>
 														</div>
 													</div>
@@ -400,13 +387,13 @@ export default function TherapistSchedule() {
 										<div className="flex items-center justify-between">
 											<h2 className="text-xl font-bold flex items-center gap-2">
 												<ShieldAlert className="w-5 h-5 text-primary" />{" "}
-												Bloqueos Activos
+												{t("schedule.activeBlocks")}
 											</h2>
 											<Button
 												className="rounded-xl"
 												onClick={() => setIsAddingBlock(true)}
 											>
-												<Plus className="w-4 h-4 mr-2" /> Nuevo Bloqueo
+												<Plus className="w-4 h-4 mr-2" /> {t("schedule.newBlock")}
 											</Button>
 										</div>
 
@@ -415,7 +402,7 @@ export default function TherapistSchedule() {
 												<div className="grid gap-4">
 													<div className="grid grid-cols-2 gap-4">
 														<div className="space-y-2">
-															<Label>Inicio</Label>
+															<Label>{t("schedule.start")}</Label>
 															<Input
 																type="datetime-local"
 																value={newBlock.start_datetime}
@@ -428,7 +415,7 @@ export default function TherapistSchedule() {
 															/>
 														</div>
 														<div className="space-y-2">
-															<Label>Fin</Label>
+															<Label>{t("schedule.end")}</Label>
 															<Input
 																type="datetime-local"
 																value={newBlock.end_datetime}
@@ -442,9 +429,9 @@ export default function TherapistSchedule() {
 														</div>
 													</div>
 													<div className="space-y-2">
-														<Label>Motivo</Label>
+														<Label>{t("schedule.reason")}</Label>
 														<Input
-															placeholder="Ej: Vacaciones, Reunión..."
+															placeholder={t("schedule.reasonPlaceholder")}
 															value={newBlock.reason}
 															onChange={(e) =>
 																setNewBlock({
@@ -459,10 +446,10 @@ export default function TherapistSchedule() {
 															variant="ghost"
 															onClick={() => setIsAddingBlock(false)}
 														>
-															Cancelar
+															{t("booking.back")}
 														</Button>
 														<Button onClick={() => handleCreateBlock(newBlock)}>
-															Guardar Bloqueo
+															{t("schedule.saveBlock")}
 														</Button>
 													</div>
 												</div>
@@ -478,16 +465,16 @@ export default function TherapistSchedule() {
 													>
 														<div>
 															<p className="font-bold text-red-900">
-																{block.reason || "Bloqueo sin motivo"}
+																{block.reason || t("schedule.manualBlock")}
 															</p>
 															<p className="text-sm text-red-700/80">
-																Desde:{" "}
+																{t("schedule.start")}:{" "}
 																{new Date(
 																	block.start_datetime,
-																).toLocaleString()}
+																).toLocaleString(i18n.language === "es" ? "es-ES" : "en-US")}
 																<br />
-																Hasta:{" "}
-																{new Date(block.end_datetime).toLocaleString()}
+																{t("schedule.end")}:{" "}
+																{new Date(block.end_datetime).toLocaleString(i18n.language === "es" ? "es-ES" : "en-US")}
 															</p>
 														</div>
 														<Button
@@ -499,13 +486,13 @@ export default function TherapistSchedule() {
 																handleDeleteBlock(block.internal_id)
 															}
 														>
-															Eliminar
+															{t("schedule.delete")}
 														</Button>
 													</div>
 												))
 											) : (
 												<p className="text-center py-10 text-muted-foreground italic">
-													No tienes bloqueos configurados.
+													{t("schedule.noBlocks")}
 												</p>
 											)}
 										</div>

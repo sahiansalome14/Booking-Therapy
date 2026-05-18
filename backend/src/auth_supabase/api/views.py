@@ -1,6 +1,7 @@
 # Cada vista extiende APIView y delega toda la lógica al Service Layer.
 # Las vistas solo: 1) validan entrada con Serializers, 2) llaman al servicio, 3) retornan HTTP response.
 
+from django.utils.translation import gettext as _
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -51,7 +52,7 @@ class VerifyTokenView(APIView):
     def get(self, request):
         token = request.headers.get("Authorization", "").replace("Bearer ", "")
         if not token:
-            return Response({"detail": "Token no provisto"}, status=401)
+            return Response({"detail": _("Token no provisto")}, status=401)
 
         service = AuthServiceFactory.create()
         data, status_code = service.verify_token(token)
@@ -65,7 +66,7 @@ class ProviderRedirectView(APIView):
     def get(self, request):
         token = request.query_params.get("access_token")
         if not token:
-            return Response({"detail": "Token no provisto"}, status=400)
+            return Response({"detail": _("Token no provisto")}, status=400)
 
         service = AuthServiceFactory.create()
         user_data, status_code = service.verify_token(token)
@@ -113,5 +114,5 @@ class SetRoleView(APIView):
         service.profile_repo.save_profile(profile)
 
         return Response(
-            {"detail": f"Rol asignado a {role}", "internal_id": str(profile.id)}
+            {"detail": _("Rol asignado a %(role)s") % {"role": role}, "internal_id": str(profile.id)}
         )

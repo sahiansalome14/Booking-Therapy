@@ -1,4 +1,4 @@
-from ..domain.models import Order, OrderItem
+from domain.models import Order, OrderItem
 
 class OrderBuilder:
     """

@@ -2,10 +2,13 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { HeartPulse, ShieldCheck, Sparkles } from "lucide-react";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "../../lib/supabase";
 import { Card } from "../components/Card";
 
 export default function AuthPage() {
+	const { t } = useTranslation();
+
 	return (
 		<div className="min-h-screen flex bg-background">
 			<div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-primary/10">
@@ -21,23 +24,19 @@ export default function AuthPage() {
 				<div className="relative z-10 w-full flex flex-col justify-center px-20">
 					<div className="mb-12">
 						<h1 className="text-6xl font-black text-white mb-6 drop-shadow-2xl tracking-tighter">
-							Bienvenido a <br />
-							<span className="italic text-accent-vibrant">Vis Vitalis</span>
+							{t("auth.welcomeTo")} <br />
+							<span className="italic text-accent-vibrant">{t("auth.brandName")}</span>
 						</h1>
 						<p className="text-xl text-white/90 font-medium max-w-md leading-relaxed">
-							Tu puerta de entrada a una red de profesionales comprometidos con
-							tu equilibrio y salud integral.
+							{t("auth.welcomeSubtitle")}
 						</p>
 					</div>
 
 					<div className="space-y-8">
 						{[
-							{
-								icon: ShieldCheck,
-								text: "Privacidad absoluta en tus sesiones",
-							},
-							{ icon: HeartPulse, text: "Enfoque personalizado y humano" },
-							{ icon: Sparkles, text: "Herramientas de gestión intuitivas" },
+							{ icon: ShieldCheck, text: t("auth.privacy") },
+							{ icon: HeartPulse, text: t("auth.personalApproach") },
+							{ icon: Sparkles, text: t("auth.intuitiveTools") },
 						].map((item, i) => (
 							<div key={i} className="flex items-center gap-4 group">
 								<div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 group-hover:scale-110 transition-transform">
@@ -60,16 +59,16 @@ export default function AuthPage() {
 				<div className="max-w-md w-full animate-fade-in-up">
 					<div className="text-center mb-10 lg:hidden">
 						<h2 className="text-3xl font-black text-primary tracking-tighter">
-							Vis Vitalis
+							{t("auth.brandName")}
 						</h2>
 					</div>
 
 					<div className="mb-8">
 						<h3 className="text-4xl font-extrabold tracking-tight mb-2">
-							Comienza ahora
+							{t("auth.startNow")}
 						</h3>
 						<p className="text-muted-foreground font-medium">
-							Inicia sesión o crea tu cuenta para continuar
+							{t("auth.loginSubtitle")}
 						</p>
 					</div>
 
@@ -104,14 +103,14 @@ export default function AuthPage() {
 							localization={{
 								variables: {
 									sign_in: {
-										email_label: "Correo Electrónico",
-										password_label: "Contraseña",
-										button_label: "Iniciar Sesión",
+										email_label: t("auth.emailLabel"),
+										password_label: t("auth.passwordLabel"),
+										button_label: t("auth.loginButton"),
 									},
 									sign_up: {
-										email_label: "Correo Electrónico",
-										password_label: "Contraseña",
-										button_label: "Registrarse",
+										email_label: t("auth.emailLabel"),
+										password_label: t("auth.passwordLabel"),
+										button_label: t("auth.signupButton"),
 									},
 								},
 							}}
@@ -119,19 +118,19 @@ export default function AuthPage() {
 					</Card>
 
 					<p className="mt-8 text-center text-sm text-muted-foreground font-medium">
-						Al continuar, aceptas nuestros{" "}
+						{t("auth.terms")}{" "}
 						<a
 							href="#"
 							className="underline hover:text-primary transition-colors"
 						>
-							Términos de Servicio
+							{t("auth.termsLink")}
 						</a>{" "}
-						y{" "}
+						{t("auth.and")}{" "}
 						<a
 							href="#"
 							className="underline hover:text-primary transition-colors"
 						>
-							Política de Privacidad
+							{t("auth.privacyLink")}
 						</a>
 						.
 					</p>

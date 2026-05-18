@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { type Appointment, agendaService } from "../../services/agenda";
 import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
@@ -23,6 +24,7 @@ export default function SessionDetailsPage() {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
 	const { user } = useAuth();
+	const { t, i18n } = useTranslation();
 	const [appointment, setAppointment] = useState<Appointment | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -42,9 +44,9 @@ export default function SessionDetailsPage() {
 	}, [id]);
 
 	const formatCurrency = (amount: number) => {
-		return new Intl.NumberFormat("es-CO", {
+		return new Intl.NumberFormat(i18n.language === "es" ? "es-CO" : "en-US", {
 			style: "currency",
-			currency: "COP",
+			currency: i18n.language === "es" ? "COP" : "USD",
 			minimumFractionDigits: 0,
 		}).format(amount);
 	};
@@ -52,13 +54,13 @@ export default function SessionDetailsPage() {
 	const getStatusBadge = (status: string) => {
 		const s = status ? status.toLowerCase() : "";
 		if (s === "confirmed")
-			return { variant: "success" as const, label: "Confirmada" };
+			return { variant: "success" as const, label: t("status.confirmed") };
 		if (s === "scheduled")
-			return { variant: "warning" as const, label: "Pendiente" };
+			return { variant: "warning" as const, label: t("status.scheduled") };
 		if (s === "completed")
-			return { variant: "info" as const, label: "Completada" };
+			return { variant: "info" as const, label: t("status.completed") };
 		if (s === "cancelled")
-			return { variant: "danger" as const, label: "Cancelada" };
+			return { variant: "danger" as const, label: t("status.cancelled") };
 		return { variant: "warning" as const, label: status };
 	};
 
@@ -73,8 +75,8 @@ export default function SessionDetailsPage() {
 	if (!appointment) {
 		return (
 			<div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-				<h1 className="text-2xl font-bold mb-4">Sesión no encontrada</h1>
-				<Button onClick={() => navigate(-1)}>Volver</Button>
+				<h1 className="text-2xl font-bold mb-4">{t("details.sessionNotFound")}</h1>
+				<Button onClick={() => navigate(-1)}>{t("details.back")}</Button>
 			</div>
 		);
 	}
@@ -87,7 +89,7 @@ export default function SessionDetailsPage() {
 					className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8 group"
 				>
 					<ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-					<span>Volver al Dashboard</span>
+					<span>{t("details.backToDashboard")}</span>
 				</button>
 
 				<Card className="p-8 shadow-xl border-blue-100 relative overflow-hidden">
@@ -97,7 +99,7 @@ export default function SessionDetailsPage() {
 						<div>
 							<div className="flex items-center gap-3 mb-2">
 								<h1 className="text-3xl font-bold text-foreground">
-									Detalles de la Sesión
+									{t("details.title")}
 								</h1>
 								<Badge
 									variant={getStatusBadge(appointment.status).variant}
@@ -107,12 +109,12 @@ export default function SessionDetailsPage() {
 								</Badge>
 							</div>
 							<p className="text-muted-foreground">
-								ID de Referencia: {appointment.internal_id.split("-")[0]}
+								{t("details.refId")}: {appointment.internal_id.split("-")[0]}
 							</p>
 						</div>
 						<div className="text-right">
 							<p className="text-sm text-muted-foreground mb-1">
-								Costo de Sesión
+								{t("details.sessionCost")}
 							</p>
 							<p className="text-3xl font-bold text-primary">
 								{formatCurrency(Number(appointment.price))}
@@ -124,7 +126,7 @@ export default function SessionDetailsPage() {
 						<div className="space-y-8">
 							<section>
 								<h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
-									Información de la Cita
+									{t("details.appointmentInfo")}
 								</h2>
 								<div className="space-y-4">
 									<div className="flex items-center gap-3">
@@ -132,11 +134,11 @@ export default function SessionDetailsPage() {
 											<Calendar className="w-5 h-5" />
 										</div>
 										<div>
-											<p className="text-sm text-muted-foreground">Fecha</p>
+											<p className="text-sm text-muted-foreground">{t("details.date")}</p>
 											<p className="font-medium">
 												{new Date(
 													appointment.start_datetime,
-												).toLocaleDateString("es-ES", {
+												).toLocaleDateString(i18n.language === "es" ? "es-ES" : "en-US", {
 													weekday: "long",
 													year: "numeric",
 													month: "long",
@@ -150,7 +152,7 @@ export default function SessionDetailsPage() {
 											<Clock className="w-5 h-5" />
 										</div>
 										<div>
-											<p className="text-sm text-muted-foreground">Hora</p>
+											<p className="text-sm text-muted-foreground">{t("details.time")}</p>
 											<p className="font-medium">
 												{new Date(
 													appointment.start_datetime,
@@ -171,7 +173,7 @@ export default function SessionDetailsPage() {
 
 							<section>
 								<h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
-									Modalidad
+									{t("details.modality")}
 								</h2>
 								<div className="bg-muted/30 rounded-2xl p-6 border border-border/50">
 									{appointment.modality === "VIRTUAL" ||
@@ -180,12 +182,11 @@ export default function SessionDetailsPage() {
 											<div className="flex items-center gap-3 text-primary">
 												<Video className="w-6 h-6" />
 												<span className="font-bold text-lg">
-													Sesión Virtual (Jitsi)
+													{t("details.virtualSession")}
 												</span>
 											</div>
 											<p className="text-sm text-muted-foreground">
-												La sesión se llevará a cabo mediante un enlace seguro.
-												Por favor, asegúrate de tener buena conexión.
+												{t("details.virtualDesc")}
 											</p>
 											{appointment.meeting_link ? (
 												<a
@@ -196,12 +197,12 @@ export default function SessionDetailsPage() {
 												>
 													<Button className="w-full gap-2 shadow-lg shadow-primary/20">
 														<Video className="w-4 h-4" />
-														Unirse a la Reunión
+														{t("details.joinMeeting")}
 													</Button>
 												</a>
 											) : (
 												<div className="p-4 bg-yellow-50 rounded-xl border border-yellow-100 text-yellow-800 text-sm">
-													El enlace de la reunión estará disponible pronto.
+													{t("details.linkSoon")}
 												</div>
 											)}
 										</div>
@@ -210,17 +211,17 @@ export default function SessionDetailsPage() {
 											<div className="flex items-center gap-3 text-emerald-600">
 												<MapPin className="w-6 h-6" />
 												<span className="font-bold text-lg">
-													Sesión Presencial
+													{t("details.inPersonSession")}
 												</span>
 											</div>
 											<p className="text-sm text-muted-foreground">
-												La sesión será en el consultorio del terapeuta.
+												{t("details.inPersonDesc")}
 											</p>
 											<div className="p-4 bg-white rounded-xl border border-emerald-100">
-												<p className="text-sm font-medium mb-1">Dirección:</p>
+												<p className="text-sm font-medium mb-1">{t("details.address")}:</p>
 												<p className="text-foreground">
 													{appointment.therapist_location ||
-														"Dirección no especificada"}
+														t("details.addressNotSpecified")}
 												</p>
 											</div>
 										</div>
@@ -232,7 +233,7 @@ export default function SessionDetailsPage() {
 						<div className="space-y-8">
 							<section>
 								<h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
-									Participantes
+									{t("details.participants")}
 								</h2>
 								<Card className="bg-muted/20 border-border/50 p-5 space-y-6">
 									<div className="flex items-center gap-4">
@@ -241,7 +242,7 @@ export default function SessionDetailsPage() {
 										</div>
 										<div>
 											<p className="text-xs text-muted-foreground uppercase font-bold tracking-tighter">
-												Terapeuta
+												{t("details.therapist")}
 											</p>
 											<p className="font-bold">{appointment.therapist_name}</p>
 											<div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
@@ -259,7 +260,7 @@ export default function SessionDetailsPage() {
 										</div>
 										<div>
 											<p className="text-xs text-muted-foreground uppercase font-bold tracking-tighter">
-												Paciente
+												{t("details.patient")}
 											</p>
 											<p className="font-bold">{appointment.patient_name}</p>
 											<div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
@@ -273,39 +274,38 @@ export default function SessionDetailsPage() {
 
 							<section>
 								<h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
-									Recordatorio
+									{t("details.reminder")}
 								</h2>
 								<div className="p-5 bg-blue-50 rounded-2xl border border-blue-100 space-y-3">
 									<div className="flex items-center gap-2 text-blue-700 font-bold text-sm">
 										<BadgeCheck className="w-4 h-4" />
-										Recomendaciones
+										{t("details.recommendations")}
 									</div>
 									<ul className="text-xs text-blue-700/80 space-y-2 list-disc list-inside">
 										{appointment.modality === "VIRTUAL" ||
 										!appointment.modality ? (
 											<>
 												<li>
-													Asegúrate de tener una conexión estable a internet.
+													{t("details.recVirtual1")}
 												</li>
-												<li>Usa audífonos para mejor privacidad y audio.</li>
+												<li>{t("details.recVirtual2")}</li>
 												<li>
-													Conéctate 5 minutos antes desde un lugar tranquilo.
+													{t("details.recVirtual3")}
 												</li>
 											</>
 										) : (
 											<>
-												<li>Llega 10 minutos antes de tu cita pactada.</li>
+												<li>{t("details.recInPerson1")}</li>
 												<li>
-													Recuerda traer tu documento de identidad si es
-													necesario.
+													{t("details.recInPerson2")}
 												</li>
 												<li>
-													Calcula tu tiempo de desplazamiento al consultorio.
+													{t("details.recInPerson3")}
 												</li>
 											</>
 										)}
 										<li>
-											Si no puedes asistir, cancela con 24h de antelación.
+											{t("details.recGeneral")}
 										</li>
 									</ul>
 								</div>
@@ -340,11 +340,11 @@ export default function SessionDetailsPage() {
 														status: "confirmed",
 													});
 												} catch (error) {
-													alert("No se pudo confirmar la sesión.");
+													alert(t("sessions.confirmError"));
 												}
 											}}
 										>
-											Aceptar Cita
+											{t("sessions.acceptAppointment")}
 										</Button>
 									)}
 									{canCancel && (
@@ -352,7 +352,7 @@ export default function SessionDetailsPage() {
 											variant="destructive"
 											onClick={async () => {
 												if (
-													confirm("¿Estás seguro de que deseas cancelar esta cita?")
+													confirm(t("sessions.confirmCancel"))
 												) {
 													try {
 														await agendaService.cancelAppointment(
@@ -363,12 +363,12 @@ export default function SessionDetailsPage() {
 															status: "cancelled",
 														});
 													} catch (error) {
-														alert("No se pudo cancelar la sesión.");
+														alert(t("sessions.cancelError"));
 													}
 												}
 											}}
 										>
-											Cancelar Cita
+											{t("clientDashboard.cancel")}
 										</Button>
 									)}
 									{s === "confirmed" && isPast && user?.role === "therapist" && (
@@ -391,11 +391,11 @@ export default function SessionDetailsPage() {
 														status: "completed",
 													});
 												} catch (error) {
-													alert("No se pudo completar la sesión.");
+													alert(t("sessions.completeError"));
 												}
 											}}
 										>
-											Marcar como Completada
+											{t("sessions.markCompleted")}
 										</Button>
 									)}
 								</>

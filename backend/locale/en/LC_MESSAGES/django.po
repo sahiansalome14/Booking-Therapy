@@ -1,0 +1,15 @@
+# English translations for Vis Vitalis Backend
+# Gettext translation file for Django monolith.
+msgid ""
+msgstr ""
+"Language: en\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Token no provisto"
+msgstr "Token not provided"
+
+msgid "Perfil no encontrado"
+msgstr "Profile not found"
+
+msgid "Rol asignado a %(role)s"
+msgstr "Role assigned to %(role)s"

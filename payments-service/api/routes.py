@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from flask import Blueprint, jsonify, request
-from ..application.services import OrderService
+from application.services import OrderService
 
 logger = logging.getLogger(__name__)
 payments_bp = Blueprint("payments", __name__)

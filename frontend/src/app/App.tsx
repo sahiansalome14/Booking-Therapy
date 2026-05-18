@@ -1,20 +1,20 @@
 import { RouterProvider } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { LanguageProvider } from "./context/LanguageContext";
 import { router } from "./routes";
 
 function AppRouter() {
 	const { isInitializing } = useAuth();
+	const { t } = useTranslation();
 
-	// If Supabase is still parsing the hash or checking local storage,
-	// we do not render the RouterProvider. This prevents the router from clearing
-	// the hash from the URL before Supabase can authenticate.
 	if (isInitializing) {
 		return (
 			<div className="flex h-screen items-center justify-center bg-background">
 				<div className="animate-pulse space-y-4 flex flex-col items-center">
 					<div className="h-12 w-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
 					<p className="text-muted-foreground font-medium">
-						Cargando sesión...
+						{t("common.loadingSession")}
 					</p>
 				</div>
 			</div>
@@ -26,8 +26,10 @@ function AppRouter() {
 
 export default function App() {
 	return (
-		<AuthProvider>
-			<AppRouter />
-		</AuthProvider>
+		<LanguageProvider>
+			<AuthProvider>
+				<AppRouter />
+			</AuthProvider>
+		</LanguageProvider>
 	);
 }
