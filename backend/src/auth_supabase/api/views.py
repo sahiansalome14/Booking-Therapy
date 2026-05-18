@@ -10,6 +10,9 @@ from .serializers import SignupSerializer, EmailPasswordSerializer, SetRoleSeria
 from ..application.factories import ProfileFactory
 
 
+from ..tasks import send_welcome_notification_task
+
+
 # Registro de nuevos usuarios: valida email, password y rol, luego delega a AuthService.signup()
 class SignupView(APIView):
     permission_classes = [AllowAny]
@@ -24,6 +27,12 @@ class SignupView(APIView):
             serializer.validated_data["password"],
             serializer.validated_data["role"],
         )
+
+        if status_code == 201:
+            send_welcome_notification_task.delay(
+                serializer.validated_data["email"],
+                serializer.validated_data["role"],
+            )
 
         return Response(data, status=status_code)
 

@@ -147,3 +147,18 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# ── Configuración de Celery (Procesos de Fondo / Tareas Asíncronas) ──────────
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html
+
+CELERY_BROKER_URL = env("REDIS_HOST", default="redis://redis:6379/0")
+if not CELERY_BROKER_URL.startswith("redis://"):
+    CELERY_BROKER_URL = f"redis://{CELERY_BROKER_URL}:6379/0"
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_TRACK_STARTED = True
+
