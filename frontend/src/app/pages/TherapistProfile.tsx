@@ -213,7 +213,7 @@ export default function TherapistProfile() {
 					<div className="lg:col-span-2 space-y-6">
 						{/* Bio */}
 						<div className="bg-white border border-blue-100 rounded-2xl p-6 shadow-lg shadow-blue-500/5">
-							<h3 className="text-xl font-bold mb-4">{t("therapistProfile.aboutMe")}</h3>
+							<h3 className="text-xl font-bold mb-4">👤 {t("therapistProfile.aboutMe")}</h3>
 							<p className="text-muted-foreground leading-relaxed">
 								{therapist.bio}
 							</p>
@@ -223,7 +223,7 @@ export default function TherapistProfile() {
 						<div className="bg-white border border-blue-100 rounded-2xl p-6 shadow-lg shadow-blue-500/5">
 							<div className="flex items-center gap-2 mb-6">
 								<CalendarIcon className="w-5 h-5 text-blue-600" />
-								<h3 className="text-xl font-bold">{t("therapistProfile.availability")}</h3>
+								<h3 className="text-xl font-bold">📅 {t("therapistProfile.availability")}</h3>
 							</div>
 
 							{/* Date Selection */}

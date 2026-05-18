@@ -125,10 +125,10 @@ export default function ClientDashboard() {
 			<div className="container mx-auto px-6">
 				<div className="mb-10">
 					<h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-						{t("clientDashboard.title")}
+						🌿 {t("clientDashboard.title")}
 					</h1>
 					<p className="text-muted-foreground text-lg">
-						{t("clientDashboard.welcomeBack", { name: user?.name || user?.email || "Cliente" })}
+						👋 {t("clientDashboard.welcomeBack", { name: user?.name || user?.email || "Cliente" })}
 					</p>
 				</div>
 
@@ -138,7 +138,7 @@ export default function ClientDashboard() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1 font-medium">
-									{t("clientDashboard.upcomingSessions")}
+									📅 {t("clientDashboard.upcomingSessions")}
 								</p>
 								<p className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
 									{upcomingSessions.length}
@@ -154,7 +154,7 @@ export default function ClientDashboard() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1 font-medium">
-									{t("clientDashboard.totalSessions")}
+									⏱️ {t("clientDashboard.totalSessions")}
 								</p>
 								<p className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">
 									{appointments.length}
@@ -170,7 +170,7 @@ export default function ClientDashboard() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1 font-medium">
-									{t("clientDashboard.totalInvested")}
+									💰 {t("clientDashboard.totalInvested")}
 								</p>
 								<p className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
 									{formatCurrency(totalSpent)}
@@ -186,7 +186,7 @@ export default function ClientDashboard() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1 font-medium">
-									{t("clientDashboard.therapists")}
+									🧑‍⚕️ {t("clientDashboard.therapists")}
 								</p>
 								<p className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
 									{new Set(appointments.map((s) => s.therapist_name)).size}
@@ -203,7 +203,7 @@ export default function ClientDashboard() {
 					{/* Upcoming Sessions */}
 					<div>
 						<div className="flex items-center justify-between mb-4">
-							<h2 className="text-xl font-semibold">{t("clientDashboard.upcomingSessions")}</h2>
+							<h2 className="text-xl font-semibold">🗓️ {t("clientDashboard.upcomingSessions")}</h2>
 							<Link to="/search">
 								<Button variant="outline" size="sm">
 									{t("clientDashboard.bookNew")}
@@ -306,7 +306,7 @@ export default function ClientDashboard() {
 					{/* History & Payments */}
 					<div>
 						<h2 className="text-xl font-semibold mb-4">
-							{t("clientDashboard.sessionHistory")}
+							📋 {t("clientDashboard.sessionHistory")}
 						</h2>
 
 						<div className="space-y-4">

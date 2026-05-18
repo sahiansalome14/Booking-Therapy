@@ -19,6 +19,7 @@ import { type Appointment, agendaService } from "../../services/agenda";
 import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
+import { toast } from "../components/Toast";
 
 export default function TherapistSessions() {
 	const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -117,7 +118,7 @@ export default function TherapistSessions() {
 				);
 			} catch (error) {
 				console.error("Error confirming session:", error);
-				alert(t("sessions.confirmError"));
+				toast.error(t("sessions.confirmError"));
 			}
 		}
 	};
@@ -133,7 +134,7 @@ export default function TherapistSessions() {
 				);
 			} catch (error) {
 				console.error("Error cancelling session:", error);
-				alert(t("sessions.cancelError"));
+				toast.error(t("sessions.cancelError"));
 			}
 		}
 	};
@@ -159,7 +160,7 @@ export default function TherapistSessions() {
 				);
 			} catch (error) {
 				console.error("Error completing session:", error);
-				alert(t("sessions.completeError"));
+				toast.error(t("sessions.completeError"));
 			}
 		}
 	};
@@ -177,7 +178,7 @@ export default function TherapistSessions() {
 			<div className="container mx-auto px-6">
 				{/* Header */}
 				<div className="mb-8">
-					<h1 className="text-3xl font-bold mb-2">{t("sessions.title")}</h1>
+					<h1 className="text-3xl font-bold mb-2">📋 {t("sessions.title")}</h1>
 					<p className="text-muted-foreground">
 						{t("sessions.subtitle")}
 					</p>
@@ -191,7 +192,7 @@ export default function TherapistSessions() {
 					>
 						<div className="flex items-start justify-between">
 							<div>
-								<p className="text-muted-foreground text-sm mb-1">{t("sessions.pending")}</p>
+								<p className="text-muted-foreground text-sm mb-1">⏳ {t("sessions.pending")}</p>
 								<p className="text-3xl font-bold text-yellow-600">
 									{getStatusBadge("scheduled").count}
 								</p>
@@ -207,7 +208,7 @@ export default function TherapistSessions() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1">
-									{t("sessions.confirmed")}
+									✅ {t("sessions.confirmed")}
 								</p>
 								<p className="text-3xl font-bold text-green-600">
 									{getStatusBadge("confirmed").count}
@@ -224,7 +225,7 @@ export default function TherapistSessions() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1">
-									{t("sessions.completed")}
+									✨ {t("sessions.completed")}
 								</p>
 								<p className="text-3xl font-bold text-blue-600">
 									{getStatusBadge("completed").count}
@@ -240,7 +241,7 @@ export default function TherapistSessions() {
 					>
 						<div className="flex items-start justify-between">
 							<div>
-								<p className="text-muted-foreground text-sm mb-1">{t("sessions.cancelled")}</p>
+								<p className="text-muted-foreground text-sm mb-1">❌ {t("sessions.cancelled")}</p>
 								<p className="text-3xl font-bold text-red-600">
 									{getStatusBadge("cancelled").count}
 								</p>

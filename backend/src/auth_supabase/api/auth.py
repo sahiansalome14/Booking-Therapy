@@ -39,7 +39,7 @@ class SupabaseAuthentication(BaseAuthentication):
         user_data, status_code = service.verify_token(token)
 
         print("VERIFY STATUS:", status_code)
-        print("USER DATA:", user_data)
+        # print("USER DATA:", user_data)
 
         if status_code != 200:
             raise exceptions.AuthenticationFailed("Token inválido")
