@@ -1,12 +1,16 @@
 # Cada vista extiende APIView y delega toda la lógica al Service Layer.
 # Las vistas solo: 1) validan entrada con Serializers, 2) llaman al servicio, 3) retornan HTTP response.
 
+from django.utils.translation import gettext as _
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from ..application.auth_service_factory import AuthServiceFactory
 from .serializers import SignupSerializer, EmailPasswordSerializer, SetRoleSerializer
 from ..application.factories import ProfileFactory
+
+
+from ..tasks import send_welcome_notification_task
 
 
 # Registro de nuevos usuarios: valida email, password y rol, luego delega a AuthService.signup()
@@ -23,6 +27,12 @@ class SignupView(APIView):
             serializer.validated_data["password"],
             serializer.validated_data["role"],
         )
+
+        if status_code == 201:
+            send_welcome_notification_task.delay(
+                serializer.validated_data["email"],
+                serializer.validated_data["role"],
+            )
 
         return Response(data, status=status_code)
 
@@ -51,7 +61,7 @@ class VerifyTokenView(APIView):
     def get(self, request):
         token = request.headers.get("Authorization", "").replace("Bearer ", "")
         if not token:
-            return Response({"detail": "Token no provisto"}, status=401)
+            return Response({"detail": _("Token no provisto")}, status=401)
 
         service = AuthServiceFactory.create()
         data, status_code = service.verify_token(token)
@@ -65,7 +75,7 @@ class ProviderRedirectView(APIView):
     def get(self, request):
         token = request.query_params.get("access_token")
         if not token:
-            return Response({"detail": "Token no provisto"}, status=400)
+            return Response({"detail": _("Token no provisto")}, status=400)
 
         service = AuthServiceFactory.create()
         user_data, status_code = service.verify_token(token)
@@ -93,9 +103,7 @@ class SetRoleView(APIView):
 
     def post(self, request):
 
-        external_id = (
-            request.user.sub
-        )  
+        external_id = request.user.sub
         email = request.user.email
 
         serializer = SetRoleSerializer(data=request.data)
@@ -115,5 +123,5 @@ class SetRoleView(APIView):
         service.profile_repo.save_profile(profile)
 
         return Response(
-            {"detail": f"Rol asignado a {role}", "internal_id": str(profile.id)}
+            {"detail": _("Rol asignado a %(role)s") % {"role": role}, "internal_id": str(profile.id)}
         )

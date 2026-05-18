@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { type Appointment, agendaService } from "../../services/agenda";
 import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
@@ -19,6 +20,7 @@ import { useAuth } from "../context/AuthContext";
 
 export default function TherapistDashboard() {
 	const { user } = useAuth();
+	const { t } = useTranslation();
 	const [appointments, setAppointments] = useState<Appointment[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -101,13 +103,13 @@ export default function TherapistDashboard() {
 	const getStatusBadge = (status: string) => {
 		const s = status ? status.toLowerCase() : "";
 		if (s === "confirmed")
-			return { variant: "success" as const, label: "Confirmada" };
+			return { variant: "success" as const, label: t("status.confirmed") };
 		if (s === "scheduled")
-			return { variant: "warning" as const, label: "Pendiente" };
+			return { variant: "warning" as const, label: t("status.scheduled") };
 		if (s === "completed")
-			return { variant: "info" as const, label: "Completada" };
+			return { variant: "info" as const, label: t("status.completed") };
 		if (s === "cancelled")
-			return { variant: "danger" as const, label: "Cancelada" };
+			return { variant: "danger" as const, label: t("status.cancelled") };
 		return { variant: "warning" as const, label: status };
 	};
 
@@ -122,11 +124,10 @@ export default function TherapistDashboard() {
 	return (
 		<div className="min-h-screen bg-background py-8">
 			<div className="container mx-auto px-6">
-				{/* Header */}
 				<div className="mb-8">
-					<h1 className="text-3xl font-bold mb-2">Dashboard del Terapeuta</h1>
+					<h1 className="text-3xl font-bold mb-2">{t("therapistDashboard.title")}</h1>
 					<p className="text-muted-foreground">
-						Bienvenido de vuelta, {user?.name || user?.email || "Terapeuta"}
+						{t("therapistDashboard.welcomeBack", { name: user?.name || user?.email || "Terapeuta" })}
 					</p>
 				</div>
 
@@ -136,10 +137,10 @@ export default function TherapistDashboard() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1">
-									Sesiones Hoy
+									{t("therapistDashboard.todaySessions")}
 								</p>
 								<p className="text-3xl font-bold">{todaySessions.length}</p>
-								<p className="text-sm text-green-600 mt-1">↑ 2 vs ayer</p>
+								<p className="text-sm text-green-600 mt-1">{t("therapistDashboard.vsYesterday")}</p>
 							</div>
 							<div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
 								<Calendar className="w-6 h-6 text-primary" />
@@ -151,11 +152,11 @@ export default function TherapistDashboard() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1">
-									Próximas Sesiones
+									{t("therapistDashboard.upcomingSessions")}
 								</p>
 								<p className="text-3xl font-bold">{upcomingSessions.length}</p>
 								<p className="text-sm text-muted-foreground mt-1">
-									Esta semana
+									{t("therapistDashboard.thisWeek")}
 								</p>
 							</div>
 							<div className="w-12 h-12 bg-secondary/20 rounded-lg flex items-center justify-center">
@@ -168,14 +169,13 @@ export default function TherapistDashboard() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1">
-									Ingresos del Mes
+									{t("therapistDashboard.monthlyRevenue")}
 								</p>
 								<p className="text-2xl font-bold">
 									{formatCurrency(monthlyRevenue)}
 								</p>
 								<p className="text-sm text-muted-foreground mt-1">
-									{monthlySessionsCount} sesión
-									{monthlySessionsCount !== 1 ? "es" : ""} este mes
+									{t("therapistDashboard.sessionsThisMonth", { count: monthlySessionsCount })}
 								</p>
 							</div>
 							<div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -188,11 +188,11 @@ export default function TherapistDashboard() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1">
-									Clientes Activos
+									{t("therapistDashboard.activeClients")}
 								</p>
 								<p className="text-3xl font-bold">{totalClients}</p>
 								<p className="text-sm text-muted-foreground mt-1">
-									Total únicos
+									{t("therapistDashboard.totalUnique")}
 								</p>
 							</div>
 							<div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -211,9 +211,9 @@ export default function TherapistDashboard() {
 									<Calendar className="w-5 h-5 text-primary" />
 								</div>
 								<div>
-									<p className="font-semibold">Gestionar Agenda</p>
+									<p className="font-semibold">{t("therapistDashboard.manageSchedule")}</p>
 									<p className="text-sm text-muted-foreground">
-										Ver y editar disponibilidad
+										{t("therapistDashboard.manageScheduleDesc")}
 									</p>
 								</div>
 							</div>
@@ -227,9 +227,9 @@ export default function TherapistDashboard() {
 									<Clock className="w-5 h-5 text-secondary" />
 								</div>
 								<div>
-									<p className="font-semibold">Ver Sesiones</p>
+									<p className="font-semibold">{t("therapistDashboard.viewSessions")}</p>
 									<p className="text-sm text-muted-foreground">
-										Gestionar reservas
+										{t("therapistDashboard.viewSessionsDesc")}
 									</p>
 								</div>
 							</div>
@@ -243,9 +243,9 @@ export default function TherapistDashboard() {
 									<User className="w-5 h-5 text-blue-600" />
 								</div>
 								<div>
-									<p className="font-semibold">Mi Perfil</p>
+									<p className="font-semibold">{t("therapistDashboard.myProfile")}</p>
 									<p className="text-sm text-muted-foreground">
-										Configurar información pública
+										{t("therapistDashboard.myProfileDesc")}
 									</p>
 								</div>
 							</div>
@@ -256,7 +256,7 @@ export default function TherapistDashboard() {
 				<div className="grid lg:grid-cols-3 gap-6">
 					{/* Today's Sessions */}
 					<div className="lg:col-span-2">
-						<h2 className="text-xl font-semibold mb-4">Sesiones de Hoy</h2>
+						<h2 className="text-xl font-semibold mb-4">{t("therapistDashboard.todaySessionsTitle")}</h2>
 
 						<div className="space-y-4">
 							{todaySessions.length === 0 ? (
@@ -264,7 +264,7 @@ export default function TherapistDashboard() {
 									<div className="text-center py-8">
 										<Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
 										<p className="text-muted-foreground">
-											No tienes sesiones programadas para hoy
+											{t("therapistDashboard.noTodaySessions")}
 										</p>
 									</div>
 								</Card>
@@ -284,7 +284,7 @@ export default function TherapistDashboard() {
 													<span>{session.patient_email}</span>
 												</div>
 												<p className="text-sm text-primary">
-													Sesión de Terapia
+													{t("therapistDashboard.therapySession")}
 												</p>
 											</div>
 											<Badge variant={getStatusBadge(session.status).variant}>
@@ -314,7 +314,7 @@ export default function TherapistDashboard() {
 												className="flex-1"
 											>
 												<Button variant="outline" size="sm" className="w-full">
-													Ver Detalles
+													{t("therapistDashboard.viewDetails")}
 												</Button>
 											</Link>
 											{session.status.toLowerCase() === "scheduled" && (
@@ -340,11 +340,11 @@ export default function TherapistDashboard() {
 																),
 															);
 														} catch (error) {
-															alert("No se pudo confirmar la cita.");
+															alert(t("therapistDashboard.confirmError"));
 														}
 													}}
 												>
-													Aceptar Cita
+													{t("therapistDashboard.acceptAppointment")}
 												</Button>
 											)}
 
@@ -372,11 +372,11 @@ export default function TherapistDashboard() {
 																	),
 																);
 															} catch (error) {
-																alert("No se pudo completar la cita.");
+																alert(t("therapistDashboard.completeError"));
 															}
 														}}
 													>
-														Completada
+														{t("therapistDashboard.completed")}
 													</Button>
 												)}
 										</div>
@@ -388,7 +388,7 @@ export default function TherapistDashboard() {
 
 					{/* Upcoming Sessions */}
 					<div>
-						<h2 className="text-xl font-semibold mb-4">Próximas Sesiones</h2>
+						<h2 className="text-xl font-semibold mb-4">{t("therapistDashboard.upcomingSessions")}</h2>
 
 						<div className="space-y-3">
 							{upcomingSessions.slice(0, 5).map((session) => (
@@ -403,7 +403,7 @@ export default function TherapistDashboard() {
 													{session.patient_name}
 												</p>
 												<p className="text-xs text-muted-foreground">
-													Sesión de Terapia
+													{t("therapistDashboard.therapySession")}
 												</p>
 											</div>
 											<Badge
@@ -440,7 +440,7 @@ export default function TherapistDashboard() {
 									<div className="text-center py-8">
 										<Clock className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
 										<p className="text-sm text-muted-foreground">
-											Sin sesiones próximas
+											{t("therapistDashboard.noUpcoming")}
 										</p>
 									</div>
 								</Card>
@@ -449,7 +449,7 @@ export default function TherapistDashboard() {
 							{upcomingSessions.length > 5 && (
 								<Link to="/therapist/sessions">
 									<Button variant="outline" size="sm" className="w-full">
-										Ver Todas
+										{t("therapistDashboard.viewAll")}
 									</Button>
 								</Link>
 							)}

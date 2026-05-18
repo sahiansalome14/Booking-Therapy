@@ -1,0 +1,15 @@
+# Traducciones al español — Vis Vitalis Backend
+# Archivo de traducciones gettext para el monolito Django.
+msgid ""
+msgstr ""
+"Language: es\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Token no provisto"
+msgstr "Token no provisto"
+
+msgid "Perfil no encontrado"
+msgstr "Perfil no encontrado"
+
+msgid "Rol asignado a %(role)s"
+msgstr "Rol asignado a %(role)s"

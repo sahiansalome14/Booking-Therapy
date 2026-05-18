@@ -4,10 +4,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class OrderRepository:
     """
     Implementa los métodos necesarios para guardar los cambios
-    del dominio en el medio de almacenamiento persistente 
+    del dominio en el medio de almacenamiento persistente
     """
 
     def create_order(self, patient_id, items_data, payment_info):
@@ -16,7 +17,6 @@ class OrderRepository:
 
         # Cálculo del total transaccional.
         total = sum(item["price"] * item["quantity"] for item in items_data)
-
 
         order = OrderModel.objects.create(
             patient=patient,

@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { agendaService, type Slot } from "../../services/agenda";
 import { type Therapist, therapistService } from "../../services/therapist";
 import { Badge } from "../components/Badge";
@@ -17,6 +18,7 @@ import { Card } from "../components/Card";
 export default function TherapistProfile() {
 	const { id } = useParams();
 	const [searchParams] = useSearchParams();
+	const { t, i18n } = useTranslation();
 	const [therapist, setTherapist] = useState<Therapist | null>(null);
 	const [isLoadingTherapist, setIsLoadingTherapist] = useState(true);
 
@@ -89,9 +91,9 @@ export default function TherapistProfile() {
 		return (
 			<div className="min-h-screen bg-background flex items-center justify-center">
 				<div className="text-center">
-					<h2 className="text-2xl font-bold mb-2">Terapeuta no encontrado</h2>
+					<h2 className="text-2xl font-bold mb-2">{t("booking.therapistNotFound")}</h2>
 					<Link to="/search">
-						<Button>Volver a búsqueda</Button>
+						<Button>{t("booking.backToSearch")}</Button>
 					</Link>
 				</div>
 			</div>
@@ -106,9 +108,9 @@ export default function TherapistProfile() {
 			date.setDate(today.getDate() + i);
 			dates.push({
 				full: formatDateLocal(date),
-				day: date.toLocaleDateString("es-ES", { weekday: "short" }),
+				day: date.toLocaleDateString(i18n.language === "es" ? "es-ES" : "en-US", { weekday: "short" }),
 				date: date.getDate(),
-				month: date.toLocaleDateString("es-ES", { month: "short" }),
+				month: date.toLocaleDateString(i18n.language === "es" ? "es-ES" : "en-US", { month: "short" }),
 			});
 		}
 		return dates;
@@ -132,7 +134,7 @@ export default function TherapistProfile() {
 				>
 					←{" "}
 					<span className="group-hover:-translate-x-1 transition-transform">
-						Volver a búsqueda
+						{t("booking.backToSearch")}
 					</span>
 				</Link>
 
@@ -161,16 +163,16 @@ export default function TherapistProfile() {
 										<span className="font-bold">{therapist.rating}</span>
 									</div>
 									<span className="text-muted-foreground text-sm">
-										({therapist.reviews} reseñas)
+										({therapist.reviews} {t("search.reviews")})
 									</span>
 								</div>
 
 								<div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-4 rounded-xl text-white shadow-lg mb-2">
 									<div className="text-3xl font-bold">
 										{therapist.currency || "COP"}{" "}
-										{therapist.price.toLocaleString("es-CO")}
+										{therapist.price.toLocaleString(i18n.language === "es" ? "es-CO" : "en-US")}
 									</div>
-									<div className="text-sm opacity-90">por sesión</div>
+									<div className="text-sm opacity-90">{t("therapistProfile.perSession")}</div>
 								</div>
 							</div>
 
@@ -178,7 +180,7 @@ export default function TherapistProfile() {
 								<div className="flex items-start gap-3 p-3 rounded-xl bg-blue-50/50 hover:bg-blue-50 transition-colors">
 									<Award className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
 									<div>
-										<p className="font-semibold text-sm">Experiencia</p>
+										<p className="font-semibold text-sm">{t("therapistProfile.experience")}</p>
 										<p className="text-muted-foreground text-sm">
 											{therapist.experience}
 										</p>
@@ -188,9 +190,9 @@ export default function TherapistProfile() {
 								<div className="flex items-start gap-3 p-3 rounded-xl bg-cyan-50/50 hover:bg-cyan-50 transition-colors">
 									<Clock className="w-5 h-5 text-cyan-600 flex-shrink-0 mt-0.5" />
 									<div>
-										<p className="font-semibold text-sm">Duración</p>
+										<p className="font-semibold text-sm">{t("therapistProfile.duration")}</p>
 										<p className="text-muted-foreground text-sm">
-											{therapist.session_duration || 45} minutos por sesión
+											{therapist.session_duration || 45} {t("therapistProfile.minutes")}
 										</p>
 									</div>
 								</div>
@@ -198,9 +200,9 @@ export default function TherapistProfile() {
 								<div className="flex items-start gap-3 p-3 rounded-xl bg-emerald-50/50 hover:bg-emerald-50 transition-colors">
 									<MapPin className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
 									<div>
-										<p className="font-semibold text-sm">Ubicación</p>
+										<p className="font-semibold text-sm">{t("sessions.location")}</p>
 										<p className="text-muted-foreground text-sm">
-											{therapist.location || "Online / Sin especificar"}
+											{therapist.location || t("therapistProfile.onlineOrNotSpecified")}
 										</p>
 									</div>
 								</div>
@@ -211,7 +213,7 @@ export default function TherapistProfile() {
 					<div className="lg:col-span-2 space-y-6">
 						{/* Bio */}
 						<div className="bg-white border border-blue-100 rounded-2xl p-6 shadow-lg shadow-blue-500/5">
-							<h3 className="text-xl font-bold mb-4">Sobre mí</h3>
+							<h3 className="text-xl font-bold mb-4">{t("therapistProfile.aboutMe")}</h3>
 							<p className="text-muted-foreground leading-relaxed">
 								{therapist.bio}
 							</p>
@@ -221,13 +223,13 @@ export default function TherapistProfile() {
 						<div className="bg-white border border-blue-100 rounded-2xl p-6 shadow-lg shadow-blue-500/5">
 							<div className="flex items-center gap-2 mb-6">
 								<CalendarIcon className="w-5 h-5 text-blue-600" />
-								<h3 className="text-xl font-bold">Disponibilidad</h3>
+								<h3 className="text-xl font-bold">{t("therapistProfile.availability")}</h3>
 							</div>
 
 							{/* Date Selection */}
 							<div className="mb-6">
 								<h4 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">
-									Selecciona una fecha
+									{t("therapistProfile.selectDate")}
 								</h4>
 								<div className="grid grid-cols-7 gap-2">
 									{dates.map((date) => (
@@ -257,7 +259,7 @@ export default function TherapistProfile() {
 							{selectedDate && (
 								<div>
 									<h4 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">
-										Horarios disponibles
+										{t("therapistProfile.availableTimes")}
 									</h4>
 									{isLoadingSlots ? (
 										<div className="flex justify-center py-8">
@@ -287,7 +289,7 @@ export default function TherapistProfile() {
 
 									{!isLoadingSlots && slots.length === 0 && (
 										<p className="text-muted-foreground text-sm text-center py-4">
-											No hay horarios disponibles para esta fecha
+											{t("therapistProfile.noAvailableTimes")}
 										</p>
 									)}
 								</div>
@@ -295,7 +297,7 @@ export default function TherapistProfile() {
 
 							{!selectedDate && (
 								<div className="text-center py-12 text-muted-foreground bg-blue-50/50 rounded-xl">
-									Selecciona una fecha para ver los horarios disponibles
+									{t("therapistProfile.selectDateToSeeTimes")}
 								</div>
 							)}
 
@@ -305,7 +307,7 @@ export default function TherapistProfile() {
 									<div className="flex items-center justify-between mb-4 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
 										<div>
 											<p className="text-sm text-muted-foreground mb-1">
-												Sesión seleccionada
+												{t("therapistProfile.selectedSession")}
 											</p>
 											<p className="font-bold text-lg">
 												{(() => {
@@ -313,7 +315,7 @@ export default function TherapistProfile() {
 														.split("-")
 														.map(Number);
 													const d = new Date(year, month - 1, day);
-													return d.toLocaleDateString("es-ES", {
+													return d.toLocaleDateString(i18n.language === "es" ? "es-ES" : "en-US", {
 														weekday: "long",
 														day: "numeric",
 														month: "long",
@@ -323,11 +325,11 @@ export default function TherapistProfile() {
 										</div>
 										<div className="text-right">
 											<p className="text-sm text-muted-foreground mb-1">
-												Total
+												{t("therapistProfile.total")}
 											</p>
 											<p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
 												{therapist.currency || "COP"}{" "}
-												{therapist.price.toLocaleString("es-CO")}
+												{therapist.price.toLocaleString(i18n.language === "es" ? "es-CO" : "en-US")}
 											</p>
 										</div>
 									</div>
@@ -337,7 +339,7 @@ export default function TherapistProfile() {
 										className="w-full shadow-2xl"
 										onClick={handleBooking}
 									>
-										Reservar Sesión
+										{t("therapistProfile.bookSession")}
 									</Button>
 								</div>
 							)}

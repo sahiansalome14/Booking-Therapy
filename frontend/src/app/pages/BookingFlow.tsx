@@ -14,6 +14,7 @@ import {
 	useParams,
 	useSearchParams,
 } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { agendaService } from "../../services/agenda";
 import { Order, type OrderItem, orderService } from "../../services/order";
 import { type Therapist, therapistService } from "../../services/therapist";
@@ -23,6 +24,7 @@ export default function BookingFlow() {
 	const { therapistId } = useParams();
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
+	const { t } = useTranslation();
 	const date = searchParams.get("date") || "";
 	const time = searchParams.get("time") || "";
 
@@ -51,13 +53,13 @@ export default function BookingFlow() {
 				const data = await therapistService.getById(therapistId);
 				setTherapist(data);
 			} catch (error) {
-				setBookingError("No se pudo cargar la información del terapeuta");
+				setBookingError(t("booking.loadError"));
 			} finally {
 				setIsLoading(false);
 			}
 		};
 		fetchTherapist();
-	}, [therapistId]);
+	}, [therapistId, t]);
 
 	if (isLoading) {
 		return (
@@ -72,12 +74,12 @@ export default function BookingFlow() {
 			<div className="min-h-screen bg-background flex items-center justify-center">
 				<div className="text-center">
 					<AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-					<p className="text-xl font-bold">Terapeuta no encontrado</p>
+					<p className="text-xl font-bold">{t("booking.therapistNotFound")}</p>
 					<Link
 						to="/search"
 						className="text-blue-600 hover:underline mt-4 block"
 					>
-						Volver a la búsqueda
+						{t("booking.backToSearch")}
 					</Link>
 				</div>
 			</div>
@@ -85,10 +87,10 @@ export default function BookingFlow() {
 	}
 
 	const steps = [
-		{ number: 1, title: "Confirmar", icon: Calendar },
-		{ number: 2, title: "Datos", icon: User },
-		{ number: 3, title: "Pago", icon: CreditCard },
-		{ number: 4, title: "Confirmación", icon: CheckCircle2 },
+		{ number: 1, title: t("booking.confirm"), icon: Calendar },
+		{ number: 2, title: t("booking.data"), icon: User },
+		{ number: 3, title: t("booking.payment"), icon: CreditCard },
+		{ number: 4, title: t("booking.confirmation"), icon: CheckCircle2 },
 	];
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,17 +101,17 @@ export default function BookingFlow() {
 	const validateStep = (step: number) => {
 		if (step === 2) {
 			if (!formData.name || !formData.email || !formData.phone) {
-				setBookingError("Por favor completa todos los campos");
+				setBookingError(t("booking.fillAllFields"));
 				return false;
 			}
 		}
 		if (step === 3) {
 			if (!formData.cardNumber || !formData.cardExpiry || !formData.cardCvv) {
-				setBookingError("Por favor completa los datos de pago");
+				setBookingError(t("booking.fillPaymentData"));
 				return false;
 			}
 			if (formData.cardNumber.replace(/\s/g, "").length < 16) {
-				setBookingError("Número de tarjeta inválido");
+				setBookingError(t("booking.invalidCard"));
 				return false;
 			}
 		}
@@ -122,13 +124,13 @@ export default function BookingFlow() {
 				setIsProcessing(true);
 				try {
 					if (!therapistId || !date || !time)
-						throw new Error("Datos de reserva faltantes");
+						throw new Error(t("booking.missingData"));
 
 					const orderItems: OrderItem[] = [
 						{
 							type: "session",
 							id: therapistId,
-							name: `Sesión con ${therapist.name}`,
+							name: t("booking.sessionWith", { name: therapist.name }),
 							price: therapist.price,
 							quantity: 1,
 							metadata: { date, time },
@@ -165,8 +167,7 @@ export default function BookingFlow() {
 					setCurrentStep(4);
 				} catch (error: any) {
 					setBookingError(
-						error.response?.data?.detail ||
-							"Error al procesar la reserva. Puede que el slot ya no esté disponible.",
+						error.response?.data?.detail || t("booking.processingError"),
 					);
 				} finally {
 					setIsProcessing(false);
@@ -236,7 +237,7 @@ export default function BookingFlow() {
 					<div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-2xl flex items-start gap-3 animate-in fade-in slide-in-from-top-4">
 						<AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
 						<div>
-							<p className="font-bold text-red-900">Error en la reserva</p>
+							<p className="font-bold text-red-900">{t("booking.bookingError")}</p>
 							<p className="text-red-700 text-sm">{bookingError}</p>
 						</div>
 					</div>
@@ -248,7 +249,7 @@ export default function BookingFlow() {
 					{currentStep === 1 && (
 						<div className="animate-in fade-in slide-in-from-right-4">
 							<h2 className="text-3xl font-bold mb-8 text-slate-800">
-								Confirma los detalles
+								{t("booking.confirmDetails")}
 							</h2>
 							<div className="grid md:grid-cols-5 gap-8">
 								<div className="md:col-span-2">
@@ -278,7 +279,7 @@ export default function BookingFlow() {
 											<Calendar className="w-6 h-6 text-blue-600" />
 											<div>
 												<p className="text-xs text-slate-500 font-bold uppercase tracking-wider">
-													Fecha y Hora
+													{t("booking.dateTime")}
 												</p>
 												<p className="font-bold text-slate-800">
 													{(() => {
@@ -298,7 +299,7 @@ export default function BookingFlow() {
 
 										<div className="space-y-3">
 											<p className="text-xs text-slate-500 font-bold uppercase tracking-wider">
-												Modalidad de la sesión
+												{t("booking.sessionModality")}
 											</p>
 											<div className="grid grid-cols-2 gap-3">
 												<button
@@ -313,7 +314,7 @@ export default function BookingFlow() {
 													<span
 														className={`text-sm font-bold ${formData.modality === "VIRTUAL" ? "text-blue-900" : "text-slate-600"}`}
 													>
-														Virtual
+														{t("booking.virtual")}
 													</span>
 												</button>
 												<button
@@ -328,7 +329,7 @@ export default function BookingFlow() {
 													<span
 														className={`text-sm font-bold ${formData.modality === "PRESENCIAL" ? "text-blue-900" : "text-slate-600"}`}
 													>
-														Presencial
+														{t("booking.inPerson")}
 													</span>
 												</button>
 											</div>
@@ -337,7 +338,7 @@ export default function BookingFlow() {
 										<div className="flex items-center justify-between p-6 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl text-white shadow-lg shadow-blue-200">
 											<div>
 												<p className="text-blue-100 text-sm font-medium">
-													Inversión de la sesión
+													{t("booking.sessionInvestment")}
 												</p>
 												<p className="text-4xl font-extrabold">
 													{therapist.currency || "COP"}{" "}
@@ -346,7 +347,7 @@ export default function BookingFlow() {
 											</div>
 											<div className="text-right">
 												<p className="text-blue-100 text-sm font-medium">
-													Duración
+													{t("booking.duration")}
 												</p>
 												<p className="text-xl font-bold">
 													{therapist.session_duration || 45} min
@@ -362,12 +363,12 @@ export default function BookingFlow() {
 					{/* Step 2 */}
 					{currentStep === 2 && (
 						<div className="animate-in fade-in slide-in-from-right-4">
-							<h2 className="text-2xl font-bold mb-6">Ingresa tus datos</h2>
+							<h2 className="text-2xl font-bold mb-6">{t("booking.enterData")}</h2>
 							<div className="space-y-6">
 								<div className="grid md:grid-cols-2 gap-6">
 									<div>
 										<label className="block text-sm font-bold text-slate-700 mb-2">
-											Nombre completo
+											{t("booking.fullName")}
 										</label>
 										<input
 											type="text"
@@ -380,7 +381,7 @@ export default function BookingFlow() {
 									</div>
 									<div>
 										<label className="block text-sm font-bold text-slate-700 mb-2">
-											Email
+											{t("booking.email")}
 										</label>
 										<input
 											type="email"
@@ -394,7 +395,7 @@ export default function BookingFlow() {
 								</div>
 								<div>
 									<label className="block text-sm font-bold text-slate-700 mb-2">
-										Teléfono
+										{t("booking.phone")}
 									</label>
 									<input
 										type="tel"
@@ -411,8 +412,7 @@ export default function BookingFlow() {
 										<AlertCircle className="w-6 h-6 text-blue-600" />
 									</div>
 									<p className="text-sm text-blue-900 leading-relaxed font-medium">
-										Utilizaremos estos datos para enviarte el recordatorio de tu
-										sesión y el enlace de la videollamada.
+										{t("booking.dataNotice")}
 									</p>
 								</div>
 							</div>
@@ -422,7 +422,7 @@ export default function BookingFlow() {
 					{/* Step 3 */}
 					{currentStep === 3 && (
 						<div className="animate-in fade-in slide-in-from-right-4">
-							<h2 className="text-2xl font-bold mb-8">Método de pago</h2>
+							<h2 className="text-2xl font-bold mb-8">{t("booking.paymentMethod")}</h2>
 							<div className="space-y-8">
 								<div className="grid grid-cols-2 gap-6">
 									<button
@@ -441,7 +441,7 @@ export default function BookingFlow() {
 										<p
 											className={`text-sm font-bold ${formData.paymentMethod === "card" ? "text-blue-900" : "text-slate-600"}`}
 										>
-											Tarjeta
+											{t("booking.card")}
 										</p>
 										{formData.paymentMethod === "card" && (
 											<div className="absolute top-2 right-2">
@@ -464,7 +464,7 @@ export default function BookingFlow() {
 									<div className="space-y-6 pt-4 animate-in fade-in zoom-in-95">
 										<div>
 											<label className="block text-sm font-bold text-slate-700 mb-2">
-												Número de tarjeta
+												{t("booking.cardNumber")}
 											</label>
 											<input
 												type="text"
@@ -486,7 +486,7 @@ export default function BookingFlow() {
 										<div className="grid grid-cols-2 gap-6">
 											<div>
 												<label className="block text-sm font-bold text-slate-700 mb-2">
-													Expiración
+													{t("booking.expiration")}
 												</label>
 												<input
 													type="text"
@@ -528,12 +528,12 @@ export default function BookingFlow() {
 								<div className="pt-8 border-t border-slate-100 flex items-center justify-between">
 									<div>
 										<span className="text-slate-500 font-medium">
-											Total a pagar
+											{t("booking.totalToPay")}
 										</span>
 										<div className="flex items-center gap-2">
 											<CheckCircle2 className="w-4 h-4 text-emerald-500" />
 											<span className="text-xs text-emerald-600 font-bold uppercase tracking-wider">
-												Pago Seguro
+												{t("booking.securePayment")}
 											</span>
 										</div>
 									</div>
@@ -556,10 +556,10 @@ export default function BookingFlow() {
 							</div>
 
 							<h2 className="text-4xl font-black mb-4 text-slate-800">
-								¡Reserva confirmada!
+								{t("booking.bookingConfirmed")}
 							</h2>
 							<p className="text-slate-500 text-lg mb-10 max-w-sm mx-auto">
-								Hemos enviado los detalles y el enlace de acceso a{" "}
+								{t("booking.detailsSent")}{" "}
 								<span className="font-bold text-slate-900">
 									{formData.email}
 								</span>
@@ -568,11 +568,11 @@ export default function BookingFlow() {
 							<div className="bg-slate-50 rounded-3xl p-8 mb-10 text-left max-w-md mx-auto border-2 border-white shadow-xl">
 								<h3 className="font-bold mb-6 text-xl text-slate-800 flex items-center gap-2">
 									<div className="w-1.5 h-6 bg-blue-600 rounded-full"></div>
-									Ticket de Sesión
+									{t("booking.sessionTicket")}
 								</h3>
 								<div className="space-y-4">
 									<div className="flex justify-between items-center">
-										<span className="text-slate-500 font-medium">ID Cita</span>
+										<span className="text-slate-500 font-medium">{t("booking.appointmentId")}</span>
 										<span className="font-mono text-sm bg-white px-3 py-1 rounded-lg border border-slate-100">
 											{confirmedAppointment?.internal_id
 												?.split("-")[0]
@@ -581,14 +581,14 @@ export default function BookingFlow() {
 									</div>
 									<div className="flex justify-between items-center">
 										<span className="text-slate-500 font-medium">
-											Terapeuta
+											{t("booking.therapist")}
 										</span>
 										<span className="font-bold text-slate-900">
 											{therapist.name}
 										</span>
 									</div>
 									<div className="flex justify-between items-center">
-										<span className="text-slate-500 font-medium">Fecha</span>
+										<span className="text-slate-500 font-medium">{t("booking.date")}</span>
 										<span className="font-bold text-slate-900">
 											{(() => {
 												const [y, m, d] = date.split("-").map(Number);
@@ -600,15 +600,15 @@ export default function BookingFlow() {
 										</span>
 									</div>
 									<div className="flex justify-between items-center">
-										<span className="text-slate-500 font-medium">Hora</span>
+										<span className="text-slate-500 font-medium">{t("booking.time")}</span>
 										<span className="font-bold text-blue-600">{time}</span>
 									</div>
 									<div className="pt-6 border-t border-slate-200 flex justify-between items-center">
 										<span className="text-slate-500 font-medium">
-											Estado del pago
+											{t("booking.paymentStatus")}
 										</span>
 										<span className="px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-sm font-black border border-emerald-200 uppercase tracking-tighter">
-											Exitoso
+											{t("booking.successful")}
 										</span>
 									</div>
 								</div>
@@ -623,7 +623,7 @@ export default function BookingFlow() {
 										variant="primary"
 										className="w-full h-14 px-8 text-lg font-bold bg-blue-600 hover:bg-blue-700"
 									>
-										Ver Detalles de la Cita
+										{t("booking.viewAppointmentDetails")}
 									</Button>
 								</Link>
 								<Link to="/client/dashboard" className="w-full sm:w-auto">
@@ -631,7 +631,7 @@ export default function BookingFlow() {
 										variant="outline"
 										className="w-full h-14 px-8 text-lg font-bold"
 									>
-										Ir al Dashboard
+										{t("booking.goToDashboard")}
 									</Button>
 								</Link>
 							</div>
@@ -647,7 +647,7 @@ export default function BookingFlow() {
 							disabled={currentStep === 1 || isProcessing}
 							className="h-14 px-8 text-lg font-bold border-2"
 						>
-							Regresar
+							{t("booking.back")}
 						</Button>
 						<Button
 							variant="gradient"
@@ -658,12 +658,12 @@ export default function BookingFlow() {
 							{isProcessing ? (
 								<div className="flex items-center gap-2">
 									<Loader2 className="w-5 h-5 animate-spin" />
-									<span>Procesando...</span>
+									<span>{t("booking.processing")}</span>
 								</div>
 							) : currentStep === 3 ? (
-								"Confirmar y Pagar"
+								t("booking.confirmAndPay")
 							) : (
-								"Siguiente paso"
+								t("booking.nextStep")
 							)}
 						</Button>
 					</div>

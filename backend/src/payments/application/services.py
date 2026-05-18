@@ -19,7 +19,7 @@ class OrderService:
         """
         Caso de Uso: Procesa el pago de una reserva de cita.
         """
-    
+
         # Se utiliza el patrón Builder para manejar la complejidad de crear la orden y sus ítems.
         builder = OrderBuilder()
         builder.set_patient(patient_id)

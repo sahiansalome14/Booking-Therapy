@@ -11,11 +11,13 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { type Therapist, therapistService } from "../../services/therapist";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 
 export default function TherapistProfileSettings() {
+	const { t } = useTranslation();
 	const [profile, setProfile] = useState<Partial<Therapist>>({
 		name: "",
 		bio: "",
@@ -60,10 +62,10 @@ export default function TherapistProfileSettings() {
 		setMessage({ type: "", text: "" });
 		try {
 			await therapistService.updateProfile(profile);
-			setMessage({ type: "success", text: "Perfil actualizado con éxito." });
+			setMessage({ type: "success", text: t("profileSettings.success") });
 		} catch (error) {
 			console.error("Error updating profile:", error);
-			setMessage({ type: "error", text: "Error al actualizar el perfil." });
+			setMessage({ type: "error", text: t("profileSettings.error") });
 		} finally {
 			setIsSaving(false);
 		}
@@ -81,9 +83,9 @@ export default function TherapistProfileSettings() {
 		<div className="min-h-screen bg-background py-8">
 			<div className="container mx-auto px-6 max-w-4xl">
 				<div className="mb-8">
-					<h1 className="text-3xl font-bold mb-2">Configurar Perfil</h1>
+					<h1 className="text-3xl font-bold mb-2">{t("profileSettings.title")}</h1>
 					<p className="text-muted-foreground">
-						Personaliza tu información pública para los pacientes
+						{t("profileSettings.subtitle")}
 					</p>
 				</div>
 
@@ -104,7 +106,7 @@ export default function TherapistProfileSettings() {
 						<div className="p-4 border-b border-border mb-6">
 							<h2 className="text-xl font-semibold flex items-center gap-2">
 								<User className="w-5 h-5 text-blue-600" />
-								Información Básica
+								{t("profileSettings.basicInfo")}
 							</h2>
 						</div>
 
@@ -129,7 +131,7 @@ export default function TherapistProfileSettings() {
 								</div>
 								<div className="flex-1">
 									<label className="block text-sm font-medium mb-1">
-										URL de la foto de perfil
+										{t("profileSettings.avatarUrl")}
 									</label>
 									<input
 										type="text"
@@ -144,7 +146,7 @@ export default function TherapistProfileSettings() {
 
 							<div>
 								<label className="block text-sm font-medium mb-1 text-muted-foreground uppercase tracking-wider text-[10px]">
-									Nombre Completo
+									{t("profileSettings.fullName")}
 								</label>
 								<div className="relative">
 									<User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -160,7 +162,7 @@ export default function TherapistProfileSettings() {
 
 							<div>
 								<label className="block text-sm font-medium mb-1 text-muted-foreground uppercase tracking-wider text-[10px]">
-									Especialidad
+									{t("profileSettings.specialty")}
 								</label>
 								<div className="relative">
 									<Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -177,7 +179,7 @@ export default function TherapistProfileSettings() {
 
 							<div>
 								<label className="block text-sm font-medium mb-1 text-muted-foreground uppercase tracking-wider text-[10px]">
-									Precio por Sesión (COP)
+									{t("profileSettings.sessionPrice")}
 								</label>
 								<div className="relative">
 									<DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -193,7 +195,7 @@ export default function TherapistProfileSettings() {
 
 							<div>
 								<label className="block text-sm font-medium mb-1 text-muted-foreground uppercase tracking-wider text-[10px]">
-									Ubicación
+									{t("profileSettings.location")}
 								</label>
 								<div className="relative">
 									<MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -210,7 +212,7 @@ export default function TherapistProfileSettings() {
 
 							<div>
 								<label className="block text-sm font-medium mb-1 text-muted-foreground uppercase tracking-wider text-[10px]">
-									Años de Experiencia
+									{t("profileSettings.experienceYears")}
 								</label>
 								<div className="relative">
 									<Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -226,7 +228,7 @@ export default function TherapistProfileSettings() {
 
 							<div className="md:col-span-2">
 								<label className="block text-sm font-medium mb-1 text-muted-foreground uppercase tracking-wider text-[10px]">
-									Biografía Profesional
+									{t("profileSettings.bio")}
 								</label>
 								<textarea
 									name="bio"
@@ -234,7 +236,7 @@ export default function TherapistProfileSettings() {
 									onChange={handleInputChange}
 									rows={4}
 									className="w-full px-4 py-2.5 border border-border rounded-lg bg-input-background resize-none"
-									placeholder="Escribe una breve descripción sobre tu enfoque terapéutico..."
+									placeholder={t("profileSettings.bioPlaceholder")}
 								/>
 							</div>
 						</div>
@@ -245,12 +247,12 @@ export default function TherapistProfileSettings() {
 							{isSaving ? (
 								<>
 									<Loader2 className="w-4 h-4 mr-2 animate-spin" />
-									Guardando...
+									{t("profileSettings.saving")}
 								</>
 							) : (
 								<>
 									<Save className="w-4 h-4 mr-2" />
-									Guardar Cambios
+									{t("profileSettings.saveChanges")}
 								</>
 							)}
 						</Button>

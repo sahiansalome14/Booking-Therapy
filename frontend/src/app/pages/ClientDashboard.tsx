@@ -1,6 +1,7 @@
 import { Calendar, Clock, DollarSign, Loader2, Mail, User } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { type Appointment, agendaService } from "../../services/agenda";
 import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
@@ -9,6 +10,7 @@ import { useAuth } from "../context/AuthContext";
 
 export default function ClientDashboard() {
 	const { user } = useAuth();
+	const { t } = useTranslation();
 	const [appointments, setAppointments] = useState<Appointment[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -84,18 +86,18 @@ export default function ClientDashboard() {
 	const getStatusBadge = (status: string) => {
 		const s = status ? status.toLowerCase() : "";
 		if (s === "confirmed")
-			return { variant: "success" as const, label: "Confirmada" };
+			return { variant: "success" as const, label: t("status.confirmed") };
 		if (s === "scheduled")
-			return { variant: "warning" as const, label: "Pendiente" };
+			return { variant: "warning" as const, label: t("status.scheduled") };
 		if (s === "completed")
-			return { variant: "info" as const, label: "Completada" };
+			return { variant: "info" as const, label: t("status.completed") };
 		if (s === "cancelled")
-			return { variant: "danger" as const, label: "Cancelada" };
+			return { variant: "danger" as const, label: t("status.cancelled") };
 		return { variant: "warning" as const, label: status };
 	};
 
 	const handleCancel = async (sessionId: string) => {
-		if (confirm("¿Estás seguro de que deseas cancelar esta cita?")) {
+		if (confirm(t("clientDashboard.cancelConfirm"))) {
 			try {
 				await agendaService.cancelAppointment(sessionId);
 				setAppointments(
@@ -105,7 +107,7 @@ export default function ClientDashboard() {
 				);
 			} catch (error) {
 				console.error("Error al cancelar sesión:", error);
-				alert("No se pudo cancelar la sesión.");
+				alert(t("clientDashboard.cancelError"));
 			}
 		}
 	};
@@ -121,13 +123,12 @@ export default function ClientDashboard() {
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-blue-50/30 to-background py-8">
 			<div className="container mx-auto px-6">
-				{/* Header */}
 				<div className="mb-10">
 					<h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-						Mi Dashboard
+						{t("clientDashboard.title")}
 					</h1>
 					<p className="text-muted-foreground text-lg">
-						Bienvenida de vuelta, {user?.name || user?.email || "Cliente"}
+						{t("clientDashboard.welcomeBack", { name: user?.name || user?.email || "Cliente" })}
 					</p>
 				</div>
 
@@ -137,7 +138,7 @@ export default function ClientDashboard() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1 font-medium">
-									Próximas Sesiones
+									{t("clientDashboard.upcomingSessions")}
 								</p>
 								<p className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
 									{upcomingSessions.length}
@@ -153,7 +154,7 @@ export default function ClientDashboard() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1 font-medium">
-									Sesiones Totales
+									{t("clientDashboard.totalSessions")}
 								</p>
 								<p className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">
 									{appointments.length}
@@ -169,7 +170,7 @@ export default function ClientDashboard() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1 font-medium">
-									Total Invertido
+									{t("clientDashboard.totalInvested")}
 								</p>
 								<p className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
 									{formatCurrency(totalSpent)}
@@ -185,7 +186,7 @@ export default function ClientDashboard() {
 						<div className="flex items-start justify-between">
 							<div>
 								<p className="text-muted-foreground text-sm mb-1 font-medium">
-									Terapeutas
+									{t("clientDashboard.therapists")}
 								</p>
 								<p className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
 									{new Set(appointments.map((s) => s.therapist_name)).size}
@@ -202,10 +203,10 @@ export default function ClientDashboard() {
 					{/* Upcoming Sessions */}
 					<div>
 						<div className="flex items-center justify-between mb-4">
-							<h2 className="text-xl font-semibold">Próximas Sesiones</h2>
+							<h2 className="text-xl font-semibold">{t("clientDashboard.upcomingSessions")}</h2>
 							<Link to="/search">
 								<Button variant="outline" size="sm">
-									Reservar Nueva
+									{t("clientDashboard.bookNew")}
 								</Button>
 							</Link>
 						</div>
@@ -216,10 +217,10 @@ export default function ClientDashboard() {
 									<div className="text-center py-8">
 										<Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
 										<p className="text-muted-foreground mb-4">
-											No tienes sesiones próximas
+											{t("clientDashboard.noUpcoming")}
 										</p>
 										<Link to="/search">
-											<Button size="sm">Buscar Terapeutas</Button>
+											<Button size="sm">{t("nav.searchTherapists")}</Button>
 										</Link>
 									</div>
 								</Card>
@@ -239,7 +240,7 @@ export default function ClientDashboard() {
 													<span>{session.therapist_email}</span>
 												</div>
 												<p className="text-sm text-primary">
-													Sesión de Terapia
+													{t("clientDashboard.therapySession")}
 												</p>
 											</div>
 											<Badge variant={getStatusBadge(session.status).variant}>
@@ -281,7 +282,7 @@ export default function ClientDashboard() {
 												className="flex-1"
 											>
 												<Button variant="outline" size="sm" className="w-full">
-													Ver Detalles
+													{t("clientDashboard.viewDetails")}
 												</Button>
 											</Link>
 											{(session.status.toLowerCase() === "scheduled" ||
@@ -292,7 +293,7 @@ export default function ClientDashboard() {
 													className="flex-1"
 													onClick={() => handleCancel(session.internal_id)}
 												>
-													Cancelar
+													{t("clientDashboard.cancel")}
 												</Button>
 											)}
 										</div>
@@ -305,7 +306,7 @@ export default function ClientDashboard() {
 					{/* History & Payments */}
 					<div>
 						<h2 className="text-xl font-semibold mb-4">
-							Historial de Sesiones
+							{t("clientDashboard.sessionHistory")}
 						</h2>
 
 						<div className="space-y-4">
@@ -314,7 +315,7 @@ export default function ClientDashboard() {
 									<div className="text-center py-8">
 										<Clock className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
 										<p className="text-muted-foreground">
-											No tienes historial aún
+											{t("clientDashboard.noHistory")}
 										</p>
 									</div>
 								</Card>
@@ -331,7 +332,7 @@ export default function ClientDashboard() {
 													<span>{session.therapist_email}</span>
 												</div>
 												<p className="text-sm text-primary">
-													Sesión de Terapia
+													{t("clientDashboard.therapySession")}
 												</p>
 											</div>
 											<Badge variant={getStatusBadge(session.status).variant}>
@@ -361,7 +362,7 @@ export default function ClientDashboard() {
 												session.therapist_location && (
 													<div className="flex items-center gap-1 text-xs text-muted-foreground mt-1 col-span-full">
 														<span className="font-medium text-primary">
-															Ubicación:
+															{t("clientDashboard.location")}:
 														</span>
 														<span>{session.therapist_location}</span>
 													</div>
@@ -374,12 +375,12 @@ export default function ClientDashboard() {
 												className="flex-1"
 											>
 												<Button variant="outline" size="sm" className="w-full">
-													Ver Detalles
+													{t("clientDashboard.viewDetails")}
 												</Button>
 											</Link>
 											{session.status.toLowerCase() === "completed" && (
 												<Button variant="outline" size="sm" className="flex-1">
-													Dejar Reseña
+													{t("clientDashboard.leaveReview")}
 												</Button>
 											)}
 										</div>

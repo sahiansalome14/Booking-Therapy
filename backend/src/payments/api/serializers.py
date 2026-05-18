@@ -5,7 +5,7 @@ from ..infrastructure.models import OrderModel, OrderItemModel
 # Serializador para el detalle de cada ítem de una orden.
 class OrderItemSerializer(serializers.ModelSerializer):
     """
-   Transforma el modelo OrderItemModel a JSON.
+    Transforma el modelo OrderItemModel a JSON.
     """
 
     class Meta:

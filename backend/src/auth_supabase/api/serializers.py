@@ -19,7 +19,7 @@ class EmailPasswordSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
 
-# Serializer para la asignación de rol 
+# Serializer para la asignación de rol
 class SetRoleSerializer(serializers.Serializer):
     role = serializers.ChoiceField(
         choices=[("client", "Client"), ("therapist", "Therapist")]
