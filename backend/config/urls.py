@@ -17,6 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from booking.api.views import ProductRecommendationView
 
 # Se utiliza el prefijo api/v1/ para implementar el versionado de la API.
 # Esto permite introducir cambios en una futura v2
@@ -24,7 +25,8 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/v1/auth/", include("auth_supabase.urls")),
-    path("api/v1/agenda/", include("agenda.urls")),
-    path("api/v1/payments/", include("payments.urls")),
+    path('api/v1/products/recommendations/', ProductRecommendationView.as_view(), name='product-recommendations'),
+    # path("api/v1/auth/", include("auth_supabase.urls")),
+    # path("api/v1/agenda/", include("agenda.urls")),
+    # path("api/v1/payments/", include("payments.urls")),
 ]
