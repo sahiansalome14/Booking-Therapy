@@ -1,5 +1,7 @@
-from django.urls import path, include
+from django.urls import path
+
+app_name = 'agenda'
 
 urlpatterns = [
-    path("", include("agenda.api.urls")),
+    # Placeholder - endpoints serán implementados después
 ]

@@ -1,15 +1,3 @@
-from .infrastructure.models import (
-    GlobalAgendaConfig,
-    TherapistAvailability,
-    TherapistBlock,
-    Appointment,
-    AppointmentStatus,
-)
+from django.db import models
 
-__all__ = [
-    "GlobalAgendaConfig",
-    "TherapistAvailability",
-    "TherapistBlock",
-    "Appointment",
-    "AppointmentStatus",
-]
+# Placeholder - modelos serán implementados después
