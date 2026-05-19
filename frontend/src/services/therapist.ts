@@ -63,4 +63,21 @@ export const therapistService = {
 		});
 		return normalizeTherapist(response.data);
 	},
+
+	async getProductRecommendations(terapia: string, limit = 3): Promise<any[]> {
+		const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+		try {
+			const response = await axios.get(`${backendUrl}/api/v1/products/recommendations/`, {
+				params: { terapia, limit },
+				headers: getHeaders(),
+			});
+			if (response.data.status === "success") {
+				return response.data.products;
+			}
+			return [];
+		} catch (error) {
+			console.error("Error fetching product recommendations:", error);
+			return [];
+		}
+	},
 };

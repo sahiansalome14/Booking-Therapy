@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
-    # "auth_supabase",
+    "auth_supabase",
     # "agenda",
     # "payments",
 ]
@@ -83,12 +83,12 @@ TEMPLATES = [
         },
     },
 ]
-#REST_FRAMEWORK = {
-#    "DEFAULT_AUTHENTICATION_CLASSES": (
-#        "auth_supabase.api.auth.SupabaseAuthentication",
-#    ),
-#    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.AllowAny",),
-#}
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "auth_supabase.api.auth.SupabaseAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.AllowAny",),
+}
 
 WSGI_APPLICATION = "config.wsgi.application"
 

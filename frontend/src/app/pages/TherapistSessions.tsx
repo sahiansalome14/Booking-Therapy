@@ -103,7 +103,7 @@ export default function TherapistSessions() {
 		if (confirm(t("sessions.confirmAccept"))) {
 			try {
 				await axios.post(
-					`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v1/agenda/appointments/${sessionId}/confirm/`,
+					`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v2/agenda/appointments/${sessionId}/confirm/`,
 					{},
 					{
 						headers: {
@@ -145,7 +145,7 @@ export default function TherapistSessions() {
 		) {
 			try {
 				await axios.post(
-					`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v1/agenda/appointments/${sessionId}/complete/`,
+					`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v2/agenda/appointments/${sessionId}/complete/`,
 					{},
 					{
 						headers: {

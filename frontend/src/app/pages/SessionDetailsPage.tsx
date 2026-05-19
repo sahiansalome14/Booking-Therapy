@@ -10,11 +10,15 @@ import {
 	MapPin,
 	User,
 	Video,
+	ShoppingBag,
+	Sparkles,
+	ExternalLink,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { type Appointment, agendaService } from "../../services/agenda";
+import { therapistService } from "../../services/therapist";
 import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
@@ -27,6 +31,8 @@ export default function SessionDetailsPage() {
 	const { t, i18n } = useTranslation();
 	const [appointment, setAppointment] = useState<Appointment | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const [recommendedProducts, setRecommendedProducts] = useState<any[]>([]);
+	const [isProductsLoading, setIsProductsLoading] = useState(false);
 
 	useEffect(() => {
 		const fetchSession = async () => {
@@ -34,6 +40,20 @@ export default function SessionDetailsPage() {
 			try {
 				const session = await agendaService.getAppointmentById(id);
 				setAppointment(session);
+
+				// Consultar recomendaciones del socio de ropa basadas en la especialidad del terapeuta
+				if (session.therapist_id) {
+					setIsProductsLoading(true);
+					try {
+						const therapist = await therapistService.getById(session.therapist_id);
+						const products = await therapistService.getProductRecommendations(therapist.specialty || "masaje");
+						setRecommendedProducts(products);
+					} catch (prodError) {
+						console.error("Error fetching recommended products:", prodError);
+					} finally {
+						setIsProductsLoading(false);
+					}
+				}
 			} catch (error) {
 				console.error("Error fetching session details:", error);
 			} finally {
@@ -312,6 +332,89 @@ export default function SessionDetailsPage() {
 							</section>
 						</div>
 					</div>
+
+					{/* Productos Recomendados */}
+					<div className="mt-10 pt-8 border-t border-border/80">
+						<div className="flex items-center justify-between mb-6">
+							<div>
+								<div className="flex items-center gap-2 text-violet-600 dark:text-violet-400 font-bold text-lg">
+									<Sparkles className="w-5 h-5 text-violet-500 animate-pulse" />
+									<h2>{i18n.language === "es" ? "Recomendaciones de Ropa para tu Sesión" : "Recommended Clothing for your Session"}</h2>
+								</div>
+								<p className="text-xs text-muted-foreground mt-1">
+									{i18n.language === "es" 
+										? "Indumentaria recomendada por nuestro socio aliado basada en tu tipo de terapia." 
+										: "Recommended attire suggested by our ally partner based on your therapy type."}
+								</p>
+							</div>
+							<ShoppingBag className="w-6 h-6 text-violet-500/80" />
+						</div>
+
+						{isProductsLoading ? (
+							<div className="flex items-center justify-center py-8">
+								<Loader2 className="w-8 h-8 animate-spin text-violet-500" />
+								<span className="ml-2 text-sm text-muted-foreground">
+									{i18n.language === "es" ? "Consultando tienda de ropa aliada..." : "Consulting allied clothing shop..."}
+								</span>
+							</div>
+						) : recommendedProducts.length > 0 ? (
+							<div className="grid sm:grid-cols-3 gap-6">
+								{recommendedProducts.map((product) => (
+									<div 
+										key={product.product_id || product.name}
+										className="group relative flex flex-col bg-gradient-to-b from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-950 rounded-2xl border border-violet-100 dark:border-violet-950/40 p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 overflow-hidden"
+									>
+										{product.is_eco_friendly && (
+											<span className="absolute top-3 left-3 z-10 px-2 py-0.5 text-[10px] font-bold tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-900">
+												🍃 Eco-friendly
+											</span>
+										)}
+										<div className="aspect-[4/3] w-full rounded-xl bg-slate-100 overflow-hidden mb-3 relative">
+											{product.cover_image_url ? (
+												<img 
+													src={product.cover_image_url} 
+													alt={product.name}
+													className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+												/>
+											) : (
+												<div className="w-full h-full flex items-center justify-center text-muted-foreground/40 bg-slate-100 dark:bg-slate-800">
+													<ShoppingBag className="w-10 h-10" />
+												</div>
+											)}
+										</div>
+										<h3 className="font-bold text-sm text-foreground mb-1 group-hover:text-violet-600 transition-colors line-clamp-1">
+											{product.name}
+										</h3>
+										<p className="text-xs text-muted-foreground line-clamp-2 flex-grow mb-3 leading-relaxed">
+											{product.description}
+										</p>
+										<div className="flex items-center justify-between mt-auto pt-2 border-t border-border/50">
+											<span className="font-extrabold text-sm text-violet-600 dark:text-violet-400">
+												{formatCurrency(Number(product.unit_price))}
+											</span>
+											<a 
+												href={product.purchase_url} 
+												target="_blank" 
+												rel="noopener noreferrer"
+												className="inline-flex items-center gap-1 text-[11px] font-semibold text-white bg-violet-600 hover:bg-violet-700 px-3 py-1.5 rounded-lg shadow-sm transition-all hover:shadow duration-200"
+											>
+												<span>{i18n.language === "es" ? "Comprar" : "Buy"}</span>
+												<ExternalLink className="w-3 h-3" />
+											</a>
+										</div>
+									</div>
+								))}
+							</div>
+						) : (
+							<div className="text-center py-6 border border-dashed border-border rounded-2xl bg-muted/20">
+								<ShoppingBag className="w-8 h-8 text-muted-foreground/50 mx-auto mb-2" />
+								<p className="text-xs text-muted-foreground">
+									{i18n.language === "es" ? "No se encontraron recomendaciones para esta categoría de terapia." : "No recommendations found for this therapy category."}
+								</p>
+							</div>
+						)}
+					</div>
+
 					<div className="mt-8 pt-8 border-t border-border flex flex-wrap gap-4">
 						{(() => {
 							const s = appointment.status.toLowerCase();
@@ -327,7 +430,7 @@ export default function SessionDetailsPage() {
 											onClick={async () => {
 												try {
 													await axios.post(
-														`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v1/agenda/appointments/${appointment.internal_id}/confirm/`,
+														`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v2/agenda/appointments/${appointment.internal_id}/confirm/`,
 														{},
 														{
 															headers: {
@@ -378,7 +481,7 @@ export default function SessionDetailsPage() {
 											onClick={async () => {
 												try {
 													await axios.post(
-														`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v1/agenda/appointments/${appointment.internal_id}/complete/`,
+														`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v2/agenda/appointments/${appointment.internal_id}/complete/`,
 														{},
 														{
 															headers: {

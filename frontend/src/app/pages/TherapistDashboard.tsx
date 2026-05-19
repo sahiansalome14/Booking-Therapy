@@ -324,7 +324,7 @@ export default function TherapistDashboard() {
 													onClick={async () => {
 														try {
 															await axios.post(
-																`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v1/agenda/appointments/${session.internal_id}/confirm/`,
+																`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v2/agenda/appointments/${session.internal_id}/confirm/`,
 																{},
 																{
 																	headers: {
@@ -356,7 +356,7 @@ export default function TherapistDashboard() {
 														onClick={async () => {
 															try {
 																await axios.post(
-																	`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v1/agenda/appointments/${session.internal_id}/complete/`,
+																	`${import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"}/api/v2/agenda/appointments/${session.internal_id}/complete/`,
 																	{},
 																	{
 																		headers: {

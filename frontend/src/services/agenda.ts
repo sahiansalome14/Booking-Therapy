@@ -25,6 +25,7 @@ export interface Block {
 
 export interface Appointment {
 	internal_id: string;
+	therapist_id?: string;
 	start_datetime: string;
 	end_datetime: string;
 	price: number;

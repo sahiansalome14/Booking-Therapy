@@ -26,7 +26,7 @@ from booking.api.views import ProductRecommendationView
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('api/v1/products/recommendations/', ProductRecommendationView.as_view(), name='product-recommendations'),
-    # path("api/v1/auth/", include("auth_supabase.urls")),
+    path("api/v1/auth/", include("auth_supabase.urls")),
     # path("api/v1/agenda/", include("agenda.urls")),
     # path("api/v1/payments/", include("payments.urls")),
 ]

@@ -1,8 +1,12 @@
 # Servicio de aplicación que orquesta los casos de uso de autenticación y perfiles.
 # Contiene toda la lógica de negocio del módulo: registro, login y verificación.
 
+import logging
 from ..domain.repositories import AuthProvider, ProfileRepository
 from .factories import ProfileFactory
+from ..tasks import send_welcome_notification_task
+
+logger = logging.getLogger(__name__)
 
 
 class AuthService:
@@ -34,6 +38,13 @@ class AuthService:
 
         # Persistir el perfil en la base de datos interna
         self._profile_repo.save_profile(profile)
+
+        # Disparar tarea asíncrona de Celery en segundo plano
+        try:
+            send_welcome_notification_task.delay(email, role)
+            logger.info(f"[Celery] Tarea de bienvenida encolada para {email}")
+        except Exception as e:
+            logger.error(f"[Celery] Error encolando tarea de bienvenida: {str(e)}")
 
         # Enriquecer la respuesta con el ID interno y el estado del perfil
         data.setdefault("user", {})["internal_id"] = str(profile.id)
