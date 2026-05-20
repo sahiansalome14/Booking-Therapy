@@ -77,6 +77,8 @@ Frontend: React, Vite, Bun(o npm)
 
 Base de datos: PostgreSQL 
 
+---
+
 ## 📚 Documentación
 Cada submódulo contiene su propio README con instrucciones detalladas para levantar el servidor y el cliente:
 

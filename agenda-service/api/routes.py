@@ -111,17 +111,24 @@ def therapist_detail(therapist_id):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @agenda_bp.route("/slots/", methods=["GET"])
+@require_auth
 def list_slots():
     db           = get_db()
     therapist_id = request.args.get("therapist_id")
     fecha_str    = request.args.get("fecha")
 
-    if not therapist_id or not fecha_str:
-        return jsonify({"detail": "Parámetros requeridos: therapist_id y fecha"}), 400
+    if not fecha_str:
+        return jsonify({"detail": "Parámetro requerido: fecha"}), 400
 
-    therapist = resolve_therapist(db, therapist_id)
+    # Misma resolución que availability/blocks: ID en query o perfil del token JWT
+    therapist = resolve_therapist(db, therapist_id) if therapist_id else g.profile
     if not therapist:
-        return jsonify({"detail": "Terapeuta no encontrado"}), 404
+        # El front puede enviar internal_id del monolito Django; el espejo en agenda
+        # se creó vía token (lazy) con otro UUID — el terapeuta ve su propia agenda.
+        if g.profile.role == "therapist":
+            therapist = g.profile
+        else:
+            return jsonify({"detail": "Terapeuta no encontrado"}), 404
 
     try:
         fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()

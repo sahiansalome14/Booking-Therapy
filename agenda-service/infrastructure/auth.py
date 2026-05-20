@@ -1,4 +1,5 @@
 import os
+import uuid
 import logging
 import requests as http_client
 from functools import wraps
@@ -49,12 +50,20 @@ def _get_or_create_profile(db, supabase_user: dict) -> Profile:
     db.add(auth_user)
     db.flush()  # obtener auth_user.id sin commit aún
 
-    # Crear Profile espejo
-    profile = Profile(
-        user_id          = auth_user.id,
-        external_auth_id = external_id,
-        role             = role,
+    # Crear Profile espejo (reutilizar internal_id de Django si viene en metadata)
+    internal_id_meta = meta.get("internal_id")
+    profile_kwargs = dict(
+        user_id=auth_user.id,
+        external_auth_id=external_id,
+        role=role,
     )
+    if internal_id_meta:
+        try:
+            profile_kwargs["internal_id"] = uuid.UUID(str(internal_id_meta))
+        except (ValueError, AttributeError):
+            pass
+
+    profile = Profile(**profile_kwargs)
     db.add(profile)
     db.commit()
     db.refresh(profile)
