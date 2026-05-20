@@ -1,3 +1,4 @@
+import os
 import time
 import sys
 import django
@@ -5,6 +6,7 @@ from django.db import connections
 from django.db.utils import OperationalError
 
 def main():
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
     print("⏳ Waiting for database to become available...")
     try:
         django.setup()

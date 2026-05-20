@@ -64,16 +64,23 @@ jobs:
           echo "DEBUG=True" >> backend/.env
           echo "ALLOWED_HOSTS=127.0.0.1,localhost,${{ secrets.EC2_HOST }}" >> backend/.env
           echo "DATABASE_URL=postgresql://vis_user:secret@db:5432/vis_vitalis_db" >> backend/.env
-          echo "CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000,http://localhost,http://${{ secrets.EC2_HOST }}:3000,http://${{ secrets.EC2_HOST }}" >> backend/.env
+          echo "CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000,http://localhost,http://${{ secrets.EC2_HOST }},http://${{ secrets.EC2_HOST }}:3000,http://${{ secrets.EC2_HOST }}:80" >> backend/.env
           echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> backend/.env
           echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> backend/.env
+          echo "REDIS_HOST=redis" >> backend/.env
+          echo "DJANGO_SETTINGS_MODULE=config.settings" >> backend/.env
 
           # 6. Construir y levantar contenedores con Docker Compose
-          echo "🐳 Ejecutando Docker Compose (Forzando reconstrucción sin caché para Frontend y Backend)..."
-          docker compose build --no-cache frontend backend
-          docker compose up -d --build
+          echo "🐳 Ejecutando Docker Compose (reconstrucción completa)..."
+          docker compose build --no-cache
+          docker compose up -d
 
-          # Reiniciar Nginx para refrescar la caché de IPs internas de Docker
+          echo "⏳ Esperando arranque del backend Django..."
+          sleep 25
+          docker compose ps
+          docker compose logs backend --tail 40
+
+          # Reiniciar Nginx para refrescar la resolución DNS interna de Docker
           echo "🔄 Reiniciando Nginx para actualizar resolución DNS interna..."
           docker compose restart nginx
 

@@ -103,8 +103,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 			} else {
 				localStorage.removeItem("role");
 			}
-		} catch (err) {
-			console.error("Verify failed:", err);
+		} catch (err: unknown) {
+			const status = axios.isAxiosError(err) ? err.response?.status : undefined;
+			if (status === 502 || status === 503) {
+				console.error(
+					"Verify failed: el backend Django no está disponible (502/503). Revisa que el contenedor 'backend' esté corriendo en EC2.",
+					err,
+				);
+			} else {
+				console.error("Verify failed:", err);
+			}
 			setUser(null);
 		} finally {
 			isVerifying.current = false;

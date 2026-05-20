@@ -16,14 +16,20 @@ Including another URLconf
 """
 
 from django.contrib import admin
+from django.http import JsonResponse
 from django.urls import path, include
 from booking.api.views import ProductRecommendationView
+
+
+def health_check(_request):
+    return JsonResponse({"status": "ok", "service": "django-backend"})
 
 # Se utiliza el prefijo api/v1/ para implementar el versionado de la API.
 # Esto permite introducir cambios en una futura v2
 # sin afectar a los clientes (Frontend/App) que aún dependan de la estructura actual.
 
 urlpatterns = [
+    path("api/v1/health/", health_check, name="health-check"),
     path("admin/", admin.site.urls),
     path('api/v1/products/recommendations/', ProductRecommendationView.as_view(), name='product-recommendations'),
     path("api/v1/auth/", include("auth_supabase.urls")),
