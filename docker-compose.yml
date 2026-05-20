@@ -62,7 +62,9 @@ services:
       context: ./backend
     restart: always
     command: >
-      sh -c "python wait_for_db.py &&
+      sh -c "find locale -name '*.mo' -delete 2>/dev/null || true &&
+             python manage.py compilemessages || echo 'compilemessages skipped' &&
+             python wait_for_db.py &&
              python manage.py migrate &&
              gunicorn config.wsgi:application --bind 0.0.0.0:8000 --timeout 120"
     ports:
@@ -89,7 +91,11 @@ services:
     build:
       context: ./backend
     restart: always
-    command: sh -c "python wait_for_db.py && celery -A config worker --loglevel=info"
+    command: >
+      sh -c "find locale -name '*.mo' -delete 2>/dev/null || true &&
+             python manage.py compilemessages || echo 'compilemessages skipped' &&
+             python wait_for_db.py &&
+             celery -A config worker --loglevel=info"
     env_file:
       - ./backend/.env
     environment:

@@ -8,7 +8,7 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # Instalar dependencias del sistema necesarias para compilar paquetes (como psycopg)
-RUN apt-get update && apt-get install -y gcc libpq-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y gcc libpq-dev gettext && rm -rf /var/lib/apt/lists/*
 
 # Instalar Poetry y Gunicorn
 RUN pip install --no-cache-dir poetry gunicorn
@@ -27,6 +27,11 @@ RUN poetry install --only main --no-interaction --no-ansi --no-root
 COPY . .
 
 ENV PYTHONPATH=/app:/app/src
+ENV DJANGO_SETTINGS_MODULE=config.settings
+
+# Compilar traducciones gettext (.po → .mo) en la imagen
+RUN find locale -name '*.mo' -delete 2>/dev/null || true \
+    && python manage.py compilemessages
 
 # Exponer el puerto
 EXPOSE 8000
