@@ -231,7 +231,7 @@ export default function TherapistProfile() {
 								<h4 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">
 									{t("therapistProfile.selectDate")}
 								</h4>
-								<div className="grid grid-cols-7 gap-2">
+								<div className="flex overflow-x-auto md:grid md:grid-cols-7 gap-2 pb-3 md:pb-0 scrollbar-thin scrollbar-thumb-blue-200">
 									{dates.map((date) => (
 										<button
 											key={date.full}
@@ -239,7 +239,7 @@ export default function TherapistProfile() {
 												setSelectedDate(date.full);
 												setSelectedSlot(null);
 											}}
-											className={`p-3 border-2 rounded-xl text-center transition-all duration-200 hover:scale-105 ${
+											className={`p-3 border-2 rounded-xl text-center transition-all duration-200 hover:scale-105 flex-shrink-0 min-w-[65px] md:min-w-0 ${
 												selectedDate === date.full
 													? "border-blue-600 bg-gradient-to-br from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/30"
 													: "border-blue-100 hover:border-blue-300 hover:bg-blue-50"
@@ -266,7 +266,7 @@ export default function TherapistProfile() {
 											<Loader2 className="w-8 h-8 animate-spin text-primary" />
 										</div>
 									) : (
-										<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+										<div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2">
 											{slots.map((slot) => {
 												const isSelected = selectedSlot?.start === slot.start;
 
@@ -304,12 +304,12 @@ export default function TherapistProfile() {
 							{/* Booking Button */}
 							{selectedDate && selectedSlot && (
 								<div className="mt-6 pt-6 border-t border-blue-100">
-									<div className="flex items-center justify-between mb-4 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
+									<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
 										<div>
 											<p className="text-sm text-muted-foreground mb-1">
 												{t("therapistProfile.selectedSession")}
 											</p>
-											<p className="font-bold text-lg">
+											<p className="font-bold text-base sm:text-lg">
 												{(() => {
 													const [year, month, day] = selectedDate
 														.split("-")
@@ -323,11 +323,11 @@ export default function TherapistProfile() {
 												})()} - {selectedSlot.start}
 											</p>
 										</div>
-										<div className="text-right">
+										<div className="text-left sm:text-right">
 											<p className="text-sm text-muted-foreground mb-1">
 												{t("therapistProfile.total")}
 											</p>
-											<p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+											<p className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
 												{therapist.currency || "COP"}{" "}
 												{therapist.price.toLocaleString(i18n.language === "es" ? "es-CO" : "en-US")}
 											</p>

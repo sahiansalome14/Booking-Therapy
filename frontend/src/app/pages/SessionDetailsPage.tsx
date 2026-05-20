@@ -112,13 +112,13 @@ export default function SessionDetailsPage() {
 					<span>{t("details.backToDashboard")}</span>
 				</button>
 
-				<Card className="p-8 shadow-xl border-blue-100 relative overflow-hidden">
+				<Card className="p-4 sm:p-8 shadow-xl border-blue-100 relative overflow-hidden">
 					<div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-bl-full -mr-10 -mt-10" />
 
 					<div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
 						<div>
-							<div className="flex items-center gap-3 mb-2">
-								<h1 className="text-3xl font-bold text-foreground">
+							<div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+								<h1 className="text-2xl sm:text-3xl font-bold text-foreground">
 									{t("details.title")}
 								</h1>
 								<Badge
@@ -128,21 +128,21 @@ export default function SessionDetailsPage() {
 									{getStatusBadge(appointment.status).label}
 								</Badge>
 							</div>
-							<p className="text-muted-foreground">
+							<p className="text-muted-foreground text-sm sm:text-base">
 								{t("details.refId")}: {appointment.internal_id.split("-")[0]}
 							</p>
 						</div>
-						<div className="text-right">
+						<div className="text-left md:text-right">
 							<p className="text-sm text-muted-foreground mb-1">
 								{t("details.sessionCost")}
 							</p>
-							<p className="text-3xl font-bold text-primary">
+							<p className="text-2xl sm:text-3xl font-bold text-primary">
 								{formatCurrency(Number(appointment.price))}
 							</p>
 						</div>
 					</div>
 
-					<div className="grid md:grid-cols-2 gap-10">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
 						<div className="space-y-8">
 							<section>
 								<h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
@@ -358,7 +358,7 @@ export default function SessionDetailsPage() {
 								</span>
 							</div>
 						) : recommendedProducts.length > 0 ? (
-							<div className="grid sm:grid-cols-3 gap-6">
+							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
 								{recommendedProducts.map((product) => (
 									<div 
 										key={product.product_id || product.name}
@@ -415,7 +415,7 @@ export default function SessionDetailsPage() {
 						)}
 					</div>
 
-					<div className="mt-8 pt-8 border-t border-border flex flex-wrap gap-4">
+					<div className="mt-8 pt-8 border-t border-border flex flex-col sm:flex-row flex-wrap gap-4">
 						{(() => {
 							const s = appointment.status.toLowerCase();
 							const isPast = new Date(appointment.start_datetime) < new Date();
@@ -427,6 +427,7 @@ export default function SessionDetailsPage() {
 									{s === "scheduled" && user?.role === "therapist" && (
 										<Button
 											variant="primary"
+											className="w-full sm:w-auto"
 											onClick={async () => {
 												try {
 													await axios.post(
@@ -453,6 +454,7 @@ export default function SessionDetailsPage() {
 									{canCancel && (
 										<Button
 											variant="destructive"
+											className="w-full sm:w-auto"
 											onClick={async () => {
 												if (
 													confirm(t("sessions.confirmCancel"))
@@ -477,7 +479,7 @@ export default function SessionDetailsPage() {
 									{s === "confirmed" && isPast && user?.role === "therapist" && (
 										<Button
 											variant="primary"
-											className="bg-emerald-600 hover:bg-emerald-700 text-white"
+											className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white"
 											onClick={async () => {
 												try {
 													await axios.post(
