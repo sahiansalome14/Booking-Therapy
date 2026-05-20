@@ -6,6 +6,7 @@ Implementa el patrón Adapter para desacoplar la lógica de consumo.
 import requests
 from typing import Dict, List, Optional
 from django.conf import settings
+from django.utils.translation import gettext as _
 
 
 class ProductAdapter:
@@ -80,18 +81,18 @@ class ProductAdapter:
             else:
                 return self._error_response(
                     "API_RESPONSE_ERROR",
-                    data.get("message", "Error en la API externa")
+                    data.get("message", _("Error en la API externa"))
                 )
 
         except requests.exceptions.ConnectionError:
             return self._error_response(
                 "CONNECTION_ERROR",
-                "No se pudo conectar con el servicio de productos"
+                _("No se pudo conectar con el servicio de productos")
             )
         except requests.exceptions.Timeout:
             return self._error_response(
                 "TIMEOUT_ERROR",
-                "El servicio de productos no respondió a tiempo"
+                _("El servicio de productos no respondió a tiempo")
             )
         except requests.exceptions.RequestException as e:
             return self._error_response("REQUEST_ERROR", str(e))

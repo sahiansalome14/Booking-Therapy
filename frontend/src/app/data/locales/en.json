@@ -192,7 +192,10 @@
     "fillPaymentData": "Please fill in payment details",
     "invalidCard": "Invalid card number",
     "processingError": "Error processing booking. The slot may no longer be available.",
-    "loadError": "Could not load therapist information"
+    "loadError": "Could not load therapist information",
+    "fullNamePlaceholder": "E.g. Jane Doe",
+    "emailPlaceholder": "example@email.com",
+    "phonePlaceholder": "+1 555 123 4567"
   },
   "sessions": {
     "title": "Session Management",
@@ -254,7 +257,12 @@
     "recInPerson1": "Arrive 10 minutes early for your scheduled appointment.",
     "recInPerson2": "Remember to bring your ID document if necessary.",
     "recInPerson3": "Calculate your travel time to the office.",
-    "recGeneral": "If you cannot attend, cancel 24 hours in advance."
+    "recGeneral": "If you cannot attend, cancel 24 hours in advance.",
+    "recommendedAttire": "Recommended Clothing for your Session",
+    "recommendedAttireDesc": "Recommended attire suggested by our ally partner based on your therapy type.",
+    "consultingAlliedAttire": "Consulting allied clothing shop...",
+    "buy": "Buy",
+    "noRecommendations": "No recommendations found for this therapy category."
   },
   "schedule": {
     "title": "Schedule Dashboard",
@@ -292,7 +300,16 @@
     "blockDeleteError": "Error deleting block",
     "confirmBlockSlot": "Block slot at {{time}}?",
     "manualBlock": "Manual block",
-    "blockSlotError": "Error blocking slot"
+    "blockSlotError": "Error blocking slot",
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    }
   },
   "profileSettings": {
     "title": "Profile Settings",
@@ -309,7 +326,10 @@
     "saveChanges": "Save Changes",
     "saving": "Saving...",
     "success": "Profile successfully updated.",
-    "error": "Error updating profile."
+    "error": "Error updating profile.",
+    "avatarUrlPlaceholder": "https://example.com/photo.jpg",
+    "specialtyPlaceholder": "E.g. Clinical Psychologist",
+    "locationPlaceholder": "E.g. New York, Online"
   },
   "therapistProfile": {
     "aboutMe": "About Me",

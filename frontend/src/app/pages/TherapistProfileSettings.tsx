@@ -140,7 +140,7 @@ export default function TherapistProfileSettings() {
 										value={(profile as any).avatar_url || ""}
 										onChange={handleInputChange}
 										className="w-full px-4 py-2 border border-border rounded-lg bg-input-background"
-										placeholder="https://ejemplo.com/foto.jpg"
+										placeholder={t("profileSettings.avatarUrlPlaceholder")}
 									/>
 								</div>
 							</div>
@@ -173,7 +173,7 @@ export default function TherapistProfileSettings() {
 										value={profile.specialty || ""}
 										onChange={handleInputChange}
 										className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg bg-input-background"
-										placeholder="Ej. Psicólogo Clínico"
+										placeholder={t("profileSettings.specialtyPlaceholder")}
 									/>
 								</div>
 							</div>
@@ -206,7 +206,7 @@ export default function TherapistProfileSettings() {
 										value={profile.location || ""}
 										onChange={handleInputChange}
 										className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg bg-input-background"
-										placeholder="Ej. Ciudad de México, Online"
+										placeholder={t("profileSettings.locationPlaceholder")}
 									/>
 								</div>
 							</div>

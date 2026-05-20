@@ -150,9 +150,16 @@ export default function TherapistSchedule() {
 	};
 
 	const getDayName = (dayIdx: number) => {
-		const daysEs = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
-		const daysEn = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-		return i18n.language === "es" ? daysEs[dayIdx] : daysEn[dayIdx];
+		const keys = [
+			t("schedule.days.monday"),
+			t("schedule.days.tuesday"),
+			t("schedule.days.wednesday"),
+			t("schedule.days.thursday"),
+			t("schedule.days.friday"),
+			t("schedule.days.saturday"),
+			t("schedule.days.sunday"),
+		];
+		return keys[dayIdx];
 	};
 
 	return (

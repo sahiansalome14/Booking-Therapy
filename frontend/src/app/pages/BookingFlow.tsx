@@ -24,7 +24,7 @@ export default function BookingFlow() {
 	const { therapistId } = useParams();
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
-	const { t } = useTranslation();
+	const { t, i18n } = useTranslation();
 	const date = searchParams.get("date") || "";
 	const time = searchParams.get("time") || "";
 
@@ -287,11 +287,14 @@ export default function BookingFlow() {
 															.split("-")
 															.map(Number);
 														const d = new Date(year, month - 1, day);
-														return d.toLocaleDateString("es-ES", {
-															weekday: "long",
-															month: "long",
-															day: "numeric",
-														});
+														return d.toLocaleDateString(
+															i18n.language === "es" ? "es-ES" : "en-US",
+															{
+																weekday: "long",
+																month: "long",
+																day: "numeric",
+															},
+														);
 													})()} • {time}
 												</p>
 											</div>
@@ -376,7 +379,7 @@ export default function BookingFlow() {
 											value={formData.name}
 											onChange={handleInputChange}
 											className="w-full px-5 py-4 border-2 border-slate-100 rounded-2x focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 transition-all font-medium"
-											placeholder="Ej. María García"
+											placeholder={t("booking.fullNamePlaceholder")}
 										/>
 									</div>
 									<div>
@@ -389,7 +392,7 @@ export default function BookingFlow() {
 											value={formData.email}
 											onChange={handleInputChange}
 											className="w-full px-5 py-4 border-2 border-slate-100 rounded-2x focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 transition-all font-medium"
-											placeholder="ejemplo@correo.com"
+											placeholder={t("booking.emailPlaceholder")}
 										/>
 									</div>
 								</div>
@@ -403,7 +406,7 @@ export default function BookingFlow() {
 										value={formData.phone}
 										onChange={handleInputChange}
 										className="w-full px-5 py-4 border-2 border-slate-100 rounded-2x focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50/50 transition-all font-medium"
-										placeholder="+52 55 1234 5678"
+										placeholder={t("booking.phonePlaceholder")}
 									/>
 								</div>
 
@@ -593,7 +596,7 @@ export default function BookingFlow() {
 											{(() => {
 												const [y, m, d] = date.split("-").map(Number);
 												return new Date(y, m - 1, d).toLocaleDateString(
-													"es-ES",
+													i18n.language === "es" ? "es-ES" : "en-US",
 													{ month: "short", day: "numeric", year: "numeric" },
 												);
 											})()}

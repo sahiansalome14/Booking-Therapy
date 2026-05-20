@@ -339,12 +339,10 @@ export default function SessionDetailsPage() {
 							<div>
 								<div className="flex items-center gap-2 text-violet-600 dark:text-violet-400 font-bold text-lg">
 									<Sparkles className="w-5 h-5 text-violet-500 animate-pulse" />
-									<h2>{i18n.language === "es" ? "Recomendaciones de Ropa para tu Sesión" : "Recommended Clothing for your Session"}</h2>
+									<h2>{t("details.recommendedAttire")}</h2>
 								</div>
 								<p className="text-xs text-muted-foreground mt-1">
-									{i18n.language === "es" 
-										? "Indumentaria recomendada por nuestro socio aliado basada en tu tipo de terapia." 
-										: "Recommended attire suggested by our ally partner based on your therapy type."}
+									{t("details.recommendedAttireDesc")}
 								</p>
 							</div>
 							<ShoppingBag className="w-6 h-6 text-violet-500/80" />
@@ -354,7 +352,7 @@ export default function SessionDetailsPage() {
 							<div className="flex items-center justify-center py-8">
 								<Loader2 className="w-8 h-8 animate-spin text-violet-500" />
 								<span className="ml-2 text-sm text-muted-foreground">
-									{i18n.language === "es" ? "Consultando tienda de ropa aliada..." : "Consulting allied clothing shop..."}
+									{t("details.consultingAlliedAttire")}
 								</span>
 							</div>
 						) : recommendedProducts.length > 0 ? (
@@ -398,7 +396,7 @@ export default function SessionDetailsPage() {
 												rel="noopener noreferrer"
 												className="inline-flex items-center gap-1 text-[11px] font-semibold text-white bg-violet-600 hover:bg-violet-700 px-3 py-1.5 rounded-lg shadow-sm transition-all hover:shadow duration-200"
 											>
-												<span>{i18n.language === "es" ? "Comprar" : "Buy"}</span>
+												<span>{t("details.buy")}</span>
 												<ExternalLink className="w-3 h-3" />
 											</a>
 										</div>
@@ -409,7 +407,7 @@ export default function SessionDetailsPage() {
 							<div className="text-center py-6 border border-dashed border-border rounded-2xl bg-muted/20">
 								<ShoppingBag className="w-8 h-8 text-muted-foreground/50 mx-auto mb-2" />
 								<p className="text-xs text-muted-foreground">
-									{i18n.language === "es" ? "No se encontraron recomendaciones para esta categoría de terapia." : "No recommendations found for this therapy category."}
+									{t("details.noRecommendations")}
 								</p>
 							</div>
 						)}

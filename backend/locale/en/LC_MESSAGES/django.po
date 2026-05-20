@@ -13,3 +13,33 @@ msgstr "Profile not found"
 
 msgid "Rol asignado a %(role)s"
 msgstr "Role assigned to %(role)s"
+
+msgid "Faltan campos requeridos: email, contraseña y rol son obligatorios."
+msgstr "Missing required fields: email, password and role are required."
+
+msgid "Faltan campos requeridos: email y contraseña son obligatorios."
+msgstr "Missing required fields: email and password are required."
+
+msgid "Se requiere token de autorización"
+msgstr "Authorization token is required"
+
+msgid "Rol inválido o faltante. Debe ser 'client' o 'therapist'."
+msgstr "Invalid or missing role. Must be 'client' or 'therapist'."
+
+msgid "Detalles de token inválidos retornados por el proveedor de autenticación."
+msgstr "Invalid token details returned by the authentication provider."
+
+msgid "Rol asignado exitosamente"
+msgstr "Role assigned successfully"
+
+msgid "Redirección de proveedor"
+msgstr "Provider redirect"
+
+msgid "No se pudo conectar con el servicio de productos"
+msgstr "Could not connect to the product service"
+
+msgid "El servicio de productos no respondió a tiempo"
+msgstr "The product service did not respond in time"
+
+msgid "Error en la API externa"
+msgstr "External API error"

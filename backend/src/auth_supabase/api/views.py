@@ -1,4 +1,5 @@
 import logging
+from django.utils.translation import gettext as _
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -20,7 +21,7 @@ class SignupView(APIView):
 
         if not email or not password or not role:
             return Response(
-                {"error": "Missing required fields: email, password, and role are required."},
+                {"error": _("Faltan campos requeridos: email, contraseña y rol son obligatorios.")},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -43,7 +44,7 @@ class LoginView(APIView):
 
         if not email or not password:
             return Response(
-                {"error": "Missing required fields: email and password are required."},
+                {"error": _("Faltan campos requeridos: email y contraseña son obligatorios.")},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -64,7 +65,7 @@ class VerifyTokenView(APIView):
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
             return Response(
-                {"error": "Authorization token required"},
+                {"error": _("Se requiere token de autorización")},
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
@@ -83,7 +84,7 @@ class ProviderRedirectView(APIView):
     Endpoint opcional para redirecciones de proveedores de terceros (OAuth).
     """
     def get(self, request):
-        return Response({"message": "Provider redirect"}, status=status.HTTP_200_OK)
+        return Response({"message": _("Redirección de proveedor")}, status=status.HTTP_200_OK)
 
 
 class SetRoleView(APIView):
@@ -95,7 +96,7 @@ class SetRoleView(APIView):
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
             return Response(
-                {"error": "Authorization token required"},
+                {"error": _("Se requiere token de autorización")},
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
@@ -104,7 +105,7 @@ class SetRoleView(APIView):
 
         if not role or role not in ("client", "therapist"):
             return Response(
-                {"error": "Invalid or missing role. Must be 'client' or 'therapist'."},
+                {"error": _("Rol inválido o faltante. Debe ser 'client' o 'therapist'.")},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -120,7 +121,7 @@ class SetRoleView(APIView):
 
             if not external_id or not email:
                 return Response(
-                    {"error": "Invalid token details returned from auth provider."},
+                    {"error": _("Detalles de token inválidos retornados por el proveedor de autenticación.")},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -155,7 +156,7 @@ class SetRoleView(APIView):
 
             return Response(
                 {
-                    "message": "Role assigned successfully",
+                    "message": _("Rol asignado exitosamente"),
                     "role": role,
                     "internal_id": str(profile.id)
                 },

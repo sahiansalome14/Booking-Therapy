@@ -192,7 +192,10 @@
     "fillPaymentData": "Por favor completa los datos de pago",
     "invalidCard": "Número de tarjeta inválido",
     "processingError": "Error al procesar la reserva. Puede que el slot ya no esté disponible.",
-    "loadError": "No se pudo cargar la información del terapeuta"
+    "loadError": "No se pudo cargar la información del terapeuta",
+    "fullNamePlaceholder": "Ej. María García",
+    "emailPlaceholder": "ejemplo@correo.com",
+    "phonePlaceholder": "+52 55 1234 5678"
   },
   "sessions": {
     "title": "Gestión de Sesiones",
@@ -254,7 +257,12 @@
     "recInPerson1": "Llega 10 minutos antes de tu cita pactada.",
     "recInPerson2": "Recuerda traer tu documento de identidad si es necesario.",
     "recInPerson3": "Calcula tu tiempo de desplazamiento al consultorio.",
-    "recGeneral": "Si no puedes asistir, cancela con 24h de antelación."
+    "recGeneral": "Si no puedes asistir, cancela con 24h de antelación.",
+    "recommendedAttire": "Recomendaciones de Ropa para tu Sesión",
+    "recommendedAttireDesc": "Indumentaria recomendada por nuestro socio aliado basada en tu tipo de terapia.",
+    "consultingAlliedAttire": "Consultando tienda de ropa aliada...",
+    "buy": "Comprar",
+    "noRecommendations": "No se encontraron recomendaciones para esta categoría de terapia."
   },
   "schedule": {
     "title": "Panel de Agenda",
@@ -292,7 +300,16 @@
     "blockDeleteError": "Error al eliminar bloqueo",
     "confirmBlockSlot": "¿Bloquear el horario {{time}}?",
     "manualBlock": "Bloqueo manual",
-    "blockSlotError": "Error al bloquear slot"
+    "blockSlotError": "Error al bloquear slot",
+    "days": {
+      "monday": "Lunes",
+      "tuesday": "Martes",
+      "wednesday": "Miércoles",
+      "thursday": "Jueves",
+      "friday": "Viernes",
+      "saturday": "Sábado",
+      "sunday": "Domingo"
+    }
   },
   "profileSettings": {
     "title": "Configurar Perfil",
@@ -309,7 +326,10 @@
     "saveChanges": "Guardar Cambios",
     "saving": "Guardando...",
     "success": "Perfil actualizado con éxito.",
-    "error": "Error al actualizar el perfil."
+    "error": "Error al actualizar el perfil.",
+    "avatarUrlPlaceholder": "https://ejemplo.com/foto.jpg",
+    "specialtyPlaceholder": "Ej. Psicólogo Clínico",
+    "locationPlaceholder": "Ej. Ciudad de México, Online"
   },
   "therapistProfile": {
     "aboutMe": "Sobre mí",
